@@ -1,0 +1,19 @@
+
+/*# sourceMappingURL=data:application/json;charset=utf8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiY3VzdG9tLmNzcyIsInNvdXJjZXMiOlsiY3VzdG9tLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiJ9 */
+
+/*# sourceMappingURL=custom.css.map */
+
+/* product details uploads css*/
+.p-d-uploads .tab-pane{border:2px solid #e5e5e5; min-height: 400px;}
+
+.rupee {
+  content: "\20B9";
+  color: red;
+  font-size: larger;
+}
+
+.file-field.big .file-path-wrapper {
+  height: 3.2rem; }
+  .file-field.big .file-path-wrapper .file-path {
+  height: 3rem; }
+  

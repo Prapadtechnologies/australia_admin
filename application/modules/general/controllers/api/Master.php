@@ -387,5 +387,24 @@ class Master extends MY_REST_Controller
             $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Deleted..!', REST_Controller::HTTP_OK, TRUE);
         }
     }
+
+    public function venue_address_get()
+    {
+        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $target = $_GET['q'];
+        if (strlen($target) >= 3) {
+            $where="lower('name') like '%".strtolower($target)."%'";
+           $data = $this->db->select('id, name, addressLineOne')
+                    ->like('name', $target, 'both')
+                    ->or_like('addressLineOne', $target, 'both')
+                    ->get('venue_address')
+                    ->result_array();
+            //echo $this->db->last_query();die;
+            //print_r($data);die;
+            $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        }else{
+            $this->set_response_simple(FALSE, 'Minimum 3 charactes need to be there', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, TRUE);
+        }
+    }
 }
 

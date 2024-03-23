@@ -4,7 +4,7 @@ require APPPATH . '/vendor/autoload.php';
 
 use Firebase\JWT\JWT;
 
-class Warehouse_Api extends MY_REST_Controller
+class Api extends MY_REST_Controller
 {
 
     public function __construct()

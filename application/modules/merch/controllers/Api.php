@@ -13,32 +13,23 @@ class Api extends MY_REST_Controller
         $this->load->model('user_model');
     }
 
-    /**
-     * To get states and relatd details
-     *
-     * @author Mehar
-     * */
-
-    public function venue_address_get()
+    public function sizes_get()
     {
         $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $target = $_GET['q'];
-        if (strlen($target) > 0) {
-            $where="lower('name') like '%".strtolower($target)."%'";
-            $data = $this->db->select('id, name, addressLineOne')
-                    ->like('name', $target, 'both')
-                    ->or_like('addressLineOne', $target, 'both')
-                    ->get('venue_address')
-                    ->result_array();
-        }else{
-            $data = $this->db->select('id, name, addressLineOne')
-                    ->get('venue_address')
-                    ->result_array();
+        $size_type=$_GET['size_type'];
+        $this->db->select('id, size_type');
+        if($size_type){
+            $this->db->where('id',$size_type);
+        }
+        $size_types =  $this->db->get('size_types')->result_array();
+        $data['size_types']=$size_types;
+        foreach ($size_types as $size) {
+            $data['sizes'][$size['id']]=$this->db->select('id,size_type,size_name')->get_where('sizes',['size_type'=>$size['id']])->result_array();
         }
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
 
-    public function shows_list_get()
+    public function products_list_get()
     {
         $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
             //$where="lower('name') like '%".strtolower($target)."%'";

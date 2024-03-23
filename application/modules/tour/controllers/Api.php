@@ -19,14 +19,41 @@ class Api extends MY_REST_Controller
      * @author Mehar
      * */
 
-
+    public function add_tours_data_get()
+    {
+        $data['currency'] = $this->db->select('*')
+                ->order_by('code','asc')
+                ->get('currency')
+                ->result_array();
+        $data['tour_types']=['Headline','Support','Festival'];
+        $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+    }
     public function tour_list_get()
     {
         //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $target = $_GET['q'];
             //$where="lower('name') like '%".strtolower($target)."%'";
-        $data = $this->db->select('*')
+        $data['tour_status']=[
+                ['key'=>'upcoming','label'=>'Current & Upcoming Tours'],
+                ['key'=>'completed','label'=>'Completed Tours'],
+                ['key'=>'closed','label'=>'Closed Tours'],
+            ];
+        $data['list']['upcoming'] = $this->db->select('*')
                 ->order_by('tour_name','asc')
+                ->where('start_date >=',date('Y-m-d'))
+                ->where('status','active')
+                ->get('tour')
+                ->result_array();
+
+        $data['list']['completed'] = $this->db->select('*')
+                ->order_by('tour_name','asc')
+                ->where('end_date <',date('Y-m-d'))
+                ->where('status','active')
+                ->get('tour')
+                ->result_array();
+
+        $data['list']['closed'] = $this->db->select('*')
+                ->order_by('tour_name','asc')
+                ->where('status','inactive')
                 ->get('tour')
                 ->result_array();
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);

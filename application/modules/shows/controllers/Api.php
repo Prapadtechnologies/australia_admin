@@ -42,6 +42,7 @@ class Api extends MY_REST_Controller
     {
         //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
             //$where="lower('name') like '%".strtolower($target)."%'";
+        
         if($tour_id == ''){
             $res=$this->db->order_by('tour_name','asc')->get('tour')->row();
             $tour_id=$res->id;
@@ -49,7 +50,47 @@ class Api extends MY_REST_Controller
                 $this->db->select('*');
                 $this->db->order_by('start_date','asc');
                 $this->db->where('tour_id',$tour_id);
-        $data = $this->db->get('shows')->result_array();
+        $total = $this->db->get('shows');
+        $total_count=$total->num_rows();
+        $total_data=$total->result_array();
+
+                $this->db->select('*');
+                $this->db->order_by('start_date','asc');
+                $this->db->where('tour_id',$tour_id);
+                $this->db->where('start_date >=',date('Y-m-d'));
+                $this->db->where('status','active');
+        $left = $this->db->get('shows');
+        $left_count=$left->num_rows();
+        $left_data=$left->result_array();
+
+                $this->db->select('*');
+                $this->db->order_by('start_date','asc');
+                $this->db->where('tour_id',$tour_id);
+                $this->db->where('status','inactive');
+        $cancelled = $this->db->get('shows');
+        $cancelled_count=$cancelled->num_rows();
+        $cancelled_data=$cancelled->result_array();
+
+                $this->db->select('*');
+                $this->db->order_by('start_date','asc');
+                $this->db->where('tour_id',$tour_id);
+                $this->db->where('end_date <',date('Y-m-d'));
+                $this->db->where('status','active');
+        $completed = $this->db->get('shows');
+        $completed_count=$completed->num_rows();
+        $completed_data=$completed->result_array();
+
+
+        $data['shows_status']=[
+            ['key'=>'total','label'=>'Total Shows','count'=>$total_count],
+            ['key'=>'left','label'=>'Shows Left','count'=>$left_count],
+            ['key'=>'cancelled','label'=>'Cancelled','count'=>$cancelled_count],
+            ['key'=>'completed','label'=>'Completed','count'=>$completed_count]
+        ];
+        $data['list']['total']=$total_data;
+        $data['list']['left']=$left_data;
+        $data['list']['cancelled']=$cancelled_data;
+        $data['list']['completed']=$completed_data;
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     public function show_create_post()
@@ -78,6 +119,10 @@ class Api extends MY_REST_Controller
                 "venue_rep_phone"=>$_POST['venue_rep_phone'],
                 "venue_rep_email"=>$_POST['venue_rep_email'],
                 "tax_id"=>$_POST['tax_id'],
+                "concession_company"=>$_POST['concession_company'],
+                "merchandise_company"=>$_POST['merchandise_company'],
+                "merchandise_contact_name"=>$_POST['merchandise_contact_name'],
+                "merchandise_contact_number"=>$_POST['merchandise_contact_number'],
                 "created_at"=>date('Y-m-d H:i:s'),
                 "created_by"=>$token_data->id
             ];

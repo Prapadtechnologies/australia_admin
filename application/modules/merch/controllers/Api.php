@@ -15,7 +15,7 @@ class Api extends MY_REST_Controller
 
     public function sizes_get()
     {
-        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $size_type=$_GET['size_type'];
         $this->db->select('id, size_type');
         if($size_type){
@@ -31,7 +31,7 @@ class Api extends MY_REST_Controller
 
     public function products_list_get()
     {
-        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
             //$where="lower('name') like '%".strtolower($target)."%'";
         $data = $this->db->select('*')
                 ->order_by('start_date','desc')
@@ -41,7 +41,7 @@ class Api extends MY_REST_Controller
     }
     public function show_create_post()
     {
-        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        //$token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
         /*$this->form_validation->set_rules($this->users_address_model->rules);
         if ($this->form_validation->run() == false) {

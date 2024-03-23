@@ -40,8 +40,8 @@ class Api extends MY_REST_Controller
 
     public function warehouse_list_get()
     {
-        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $target = $_GET['q'];
+        //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        //$target = $_GET['q'];
             //$where="lower('name') like '%".strtolower($target)."%'";
         $data = $this->db->select('*')
                 ->order_by('created_at','desc')
@@ -52,7 +52,7 @@ class Api extends MY_REST_Controller
     
     public function warehouse_create_post()
     {
-        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        //$token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
         /*$this->form_validation->set_rules($this->users_address_model->rules);
         if ($this->form_validation->run() == false) {

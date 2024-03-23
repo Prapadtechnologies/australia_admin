@@ -38,14 +38,18 @@ class Api extends MY_REST_Controller
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
 
-    public function shows_list_get()
+    public function shows_list_get($tour_id='')
     {
         //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
             //$where="lower('name') like '%".strtolower($target)."%'";
-        $data = $this->db->select('*')
-                ->order_by('start_date','desc')
-                ->get('shows')
-                ->result_array();
+        if($tour_id == ''){
+            $res=$this->db->order_by('tour_name','asc')->get('tour')->row();
+            $tour_id=$res->id;
+        }
+                $this->db->select('*');
+                $this->db->order_by('start_date','asc');
+                $this->db->where('tour_id',$tour_id);
+        $data = $this->db->get('shows')->result_array();
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     public function show_create_post()
@@ -57,6 +61,7 @@ class Api extends MY_REST_Controller
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
         } else {*/
             $raw_data=[
+                "tour_id"=>$_POST['tour_id'],
                 "start_date"=>$_POST['start_date'],
                 "end_date"=>$_POST['end_date'],
                 "note"=>$_POST['note'],

@@ -26,7 +26,7 @@ class Api extends MY_REST_Controller
         $target = $_GET['q'];
             //$where="lower('name') like '%".strtolower($target)."%'";
         $data = $this->db->select('*')
-                ->order_by('created_at','desc')
+                ->order_by('tour_name','asc')
                 ->get('tour')
                 ->result_array();
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);

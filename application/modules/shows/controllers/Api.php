@@ -42,11 +42,12 @@ class Api extends MY_REST_Controller
     {
         //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
             //$where="lower('name') like '%".strtolower($target)."%'";
-        
+        $status=$this->input->get('status');
         if($tour_id == ''){
             $res=$this->db->order_by('tour_name','asc')->get('tour')->row();
             $tour_id=$res->id;
         }
+
                 $this->db->select('*');
                 $this->db->order_by('start_date','asc');
                 $this->db->where('tour_id',$tour_id);
@@ -87,10 +88,16 @@ class Api extends MY_REST_Controller
             ['key'=>'cancelled','label'=>'Cancelled','count'=>$cancelled_count],
             ['key'=>'completed','label'=>'Completed','count'=>$completed_count]
         ];
-        $data['list']['total']=$total_data;
-        $data['list']['left']=$left_data;
-        $data['list']['cancelled']=$cancelled_data;
-        $data['list']['completed']=$completed_data;
+        if($status == 'total' || $status == 'left' || $status == 'cancelled' || $status == 'completed'){
+            $list_data=$$status->result_array();
+        }else{
+            $list_data=[];
+        }
+        $data['list']=$list_data;
+        // $data['list']['total']=$total_data;
+        // $data['list']['left']=$left_data;
+        // $data['list']['cancelled']=$cancelled_data;
+        // $data['list']['completed']=$completed_data;
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     public function show_create_post()

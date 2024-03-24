@@ -32,30 +32,39 @@ class Api extends MY_REST_Controller
     {
         //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
             //$where="lower('name') like '%".strtolower($target)."%'";
-        $data['tour_status']=[
-                ['key'=>'upcoming','label'=>'Current & Upcoming Tours'],
-                ['key'=>'completed','label'=>'Completed Tours'],
-                ['key'=>'closed','label'=>'Closed Tours'],
-            ];
-        $data['list']['upcoming'] = $this->db->select('*')
+        $status=$this->input->get('status');
+        $upcoming = $this->db->select('*')
                 ->order_by('tour_name','asc')
                 ->where('start_date >=',date('Y-m-d'))
                 ->where('status','active')
-                ->get('tour')
-                ->result_array();
+                ->get('tour');
+        $upcoming_count=$upcoming->num_rows();
 
-        $data['list']['completed'] = $this->db->select('*')
+        $completed = $this->db->select('*')
                 ->order_by('tour_name','asc')
                 ->where('end_date <',date('Y-m-d'))
                 ->where('status','active')
-                ->get('tour')
-                ->result_array();
+                ->get('tour');
+        $completed_count=$completed->num_rows();
 
-        $data['list']['closed'] = $this->db->select('*')
+        $closed = $this->db->select('*')
                 ->order_by('tour_name','asc')
                 ->where('status','inactive')
-                ->get('tour')
-                ->result_array();
+                ->get('tour');
+        $closed_count=$closed->num_rows();
+        
+        if($status == 'upcoming' || $status == 'completed' || $status == 'closed'){
+            $list_data=$$status->result_array();
+        }else{
+            $list_data=[];
+        }
+
+        $data['tour_status']=[
+            ['key'=>'upcoming','label'=>'Current & Upcoming Tours','count'=>$upcoming_count],
+            ['key'=>'completed','label'=>'Completed Tours','count'=>$completed_count],
+            ['key'=>'closed','label'=>'Closed Tours','count'=>$closed_count],
+        ];
+        $data['list']=$list_data;
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     

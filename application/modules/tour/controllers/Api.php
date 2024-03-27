@@ -89,5 +89,34 @@ class Api extends MY_REST_Controller
             $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
         // }
     }
+
+    public function tour_edit_post($tour_id)
+    {
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+        // Fetch token data and validate if necessary
+        //$token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+
+        $raw_data = array(
+            "tour_name" => $_POST['tour_name'],
+            "tour_type" => $_POST['tour_type'],
+            "start_date" => $_POST['start_date'],
+            "end_date" => $_POST['end_date'],
+            "report_currency" => $_POST['report_currency'],
+            "updated_at" => date('Y-m-d H:i:s'),
+            // "updated_by" => $token_data->id 
+        );
+
+        // Update the tour record in the database
+        $this->db->where('id', $tour_id);
+        $this->db->update('tour', $raw_data);
+
+        // Check if the update was successful
+        if ($this->db->affected_rows() > 0) {
+            $this->set_response_simple("Tour updated successfully", 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        } else {
+            $this->set_response_simple("Failed to update tour", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+        }
+    }
 }
 

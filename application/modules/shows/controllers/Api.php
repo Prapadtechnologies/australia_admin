@@ -140,5 +140,96 @@ class Api extends MY_REST_Controller
             $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
         // }
     }
+
+    public function show_edit_post($show_id)
+    {
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+        $raw_data = array(
+            "tour_id"=>$_POST['tour_id'],
+            "start_date"=>$_POST['start_date'],
+            "end_date"=>$_POST['end_date'],
+            "note"=>$_POST['note'],
+            "no_of_shows"=>$_POST['no_of_shows'],
+            "venue_name"=>$_POST['venue_name'],
+            "venue_address"=>$_POST['venue_address'],
+            "show_type"=>$_POST['show_type'],
+            "show_capacity"=>$_POST['show_capacity'],
+            "fee_apparel"=>$_POST['fee_apparel'],
+            "fee_others"=>$_POST['fee_others'],
+            "fee_music"=>$_POST['fee_music'],
+            "tax_method"=>$_POST['tax_method'],
+            "tax_apparel"=>$_POST['tax_apparel'],
+            "tax_others"=>$_POST['tax_others'],
+            "tax_music"=>$_POST['tax_music'],
+            "venue_rep_name"=>$_POST['venue_rep_name'],
+            "venue_rep_phone"=>$_POST['venue_rep_phone'],
+            "venue_rep_email"=>$_POST['venue_rep_email'],
+            "tax_id"=>$_POST['tax_id'],
+            "concession_company"=>$_POST['concession_company'],
+            "merchandise_company"=>$_POST['merchandise_company'],
+            "merchandise_contact_name"=>$_POST['merchandise_contact_name'],
+            "merchandise_contact_number"=>$_POST['merchandise_contact_number'],
+            "updated_at" => date('Y-m-d H:i:s'),
+            // "updated_by" => $token_data->id
+        );
+
+        // Update the show record in the database
+        $this->db->where('id', $show_id);
+        $this->db->update('shows', $raw_data);
+
+        // Check if the update was successful
+        if ($this->db->affected_rows() > 0) {
+            $this->set_response_simple("Show Edited successfully", 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        } else {
+            $this->set_response_simple("Failed to Edit the Show", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+        }
+    }
+
+    public function show_change_status_post($show_id)
+    {
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+        $raw_data = array(
+            "status" => $_POST['status'],//'inactive'
+            "updated_at" => date('Y-m-d H:i:s'),
+            // "updated_by" => $token_data->id
+        );
+
+        // Change the show Status record in the database
+        $this->db->where('id', $show_id);
+        $this->db->update('shows', $raw_data);
+
+        // Check if the update was successful
+        if ($this->db->affected_rows() > 0) {
+            $this->set_response_simple("Show Cancelled successfully", 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        } else {
+            $this->set_response_simple("Failed to Cancel the Show", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+        }
+    }
+
+    public function show_postponed_post($show_id)
+    {
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+        $raw_data = array(
+            "start_date"=>$_POST['start_date'],
+            "end_date"=>$_POST['end_date'],
+            "updated_at" => date('Y-m-d H:i:s'),
+            // "updated_by" => $token_data->id
+        );
+
+        // Postponed the show record in the database
+        $this->db->where('id', $show_id);
+        //$this->db->where('status','active');
+        $this->db->update('shows', $raw_data);
+
+        // Check if the update was successful
+        if ($this->db->affected_rows() > 0) {
+            $this->set_response_simple("Show Postponed successfully", 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        } else {
+            $this->set_response_simple("Failed to Postponed the Show", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+        }
+    }
 }
 

@@ -16,15 +16,16 @@ class Api extends MY_REST_Controller
     public function sizes_get()
     {
         //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $size_type=$_GET['size_type'];
+        $size_type=isset($_GET['size_type'])? $_GET['size_type'] : '';
         $this->db->select('id, size_type');
         if($size_type){
             $this->db->where('id',$size_type);
         }
         $size_types =  $this->db->get('size_types')->result_array();
-        $data['size_types']=$size_types;
+        $data=[];
         foreach ($size_types as $size) {
-            $data['sizes'][$size['id']]=$this->db->select('id,size_type,size_name')->get_where('sizes',['size_type'=>$size['id']])->result_array();
+            $size['size_list']=$this->db->select('id,size_type,size_name')->get_where('sizes',['size_type'=>$size['id']])->result_array();
+            $data['size_types'][]=$size;
         }
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }

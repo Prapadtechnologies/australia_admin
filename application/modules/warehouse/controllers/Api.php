@@ -70,5 +70,34 @@ class Api extends MY_REST_Controller
             $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
         // }
     }
+
+    public function warehouse_edit_post($warehouse_id)
+    {
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+        // Fetch token data and validate if necessary
+        //$token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+
+        $raw_data = array(
+            "warehouse_name" => $_POST['warehouse_name'],
+            "contact_person" => $_POST['contact_person'],
+            "phone_number" => $_POST['phone_number'],
+            "address" => $_POST['address'],
+            "updated_at" => date('Y-m-d H:i:s'),
+            // "updated_by" => $token_data->id
+        );
+
+        // Update the warehouse record in the database
+        $this->db->where('id', $warehouse_id);
+        $this->db->update('warehouse', $raw_data);
+
+        // Check if the update was successful
+        if ($this->db->affected_rows() > 0) {
+            $this->set_response_simple("Warehouse updated successfully", 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        } else {
+            $this->set_response_simple("Failed to update warehouse", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+        }
+    }
+
 }
 

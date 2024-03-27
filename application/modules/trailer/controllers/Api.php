@@ -52,5 +52,34 @@ class Api extends MY_REST_Controller
             $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
         // }
     }
+
+    public function trailer_edit_post($trailer_id)
+    {
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+        // Fetch token data and validate if necessary
+        //$token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+
+        $raw_data = array(
+            "trailer_name" => $_POST['trailer_name'],
+            "contact_person" => $_POST['contact_person'],
+            "phone_number" => $_POST['phone_number'],
+            "tours" => $_POST['tours'],
+            "updated_at" => date('Y-m-d H:i:s'),
+            // "updated_by" => $token_data->id
+        );
+
+        // Update the trailer record in the database
+        $this->db->where('id', $trailer_id);
+        $this->db->update('trailer', $raw_data);
+
+        // Check if the update was successful
+        if ($this->db->affected_rows() > 0) {
+            $this->set_response_simple("Trailer updated successfully", 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        } else {
+            $this->set_response_simple("Failed to update trailer", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+        }
+    }
+
 }
 

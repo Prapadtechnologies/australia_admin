@@ -40,7 +40,7 @@ class Api extends MY_REST_Controller
 
     public function shows_list_get($tour_id='')
     {
-        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
             //$where="lower('name') like '%".strtolower($target)."%'";
         $status=$this->input->get('status');
         if($tour_id == ''){

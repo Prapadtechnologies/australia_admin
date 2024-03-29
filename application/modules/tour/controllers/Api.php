@@ -31,13 +31,14 @@ class Api extends MY_REST_Controller
     }
     public function tour_list_get()
     {
-        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         //$where="lower('name') like '%".strtolower($target)."%'";
         $status=$this->input->get('status');
         $upcoming = $this->db->select('*')
                 ->order_by('tour_name','asc')
                 ->where('start_date >=',date('Y-m-d'))
                 ->where('status','active')
+                ->where('user_id',$token_data->id)
                 ->get('tour');
         $upcoming_count=$upcoming->num_rows();
 
@@ -45,12 +46,14 @@ class Api extends MY_REST_Controller
                 ->order_by('tour_name','asc')
                 ->where('end_date <',date('Y-m-d'))
                 ->where('status','active')
+                ->where('user_id',$token_data->id)
                 ->get('tour');
         $completed_count=$completed->num_rows();
 
         $closed = $this->db->select('*')
                 ->order_by('tour_name','asc')
                 ->where('status','inactive')
+                ->where('user_id',$token_data->id)
                 ->get('tour');
         $closed_count=$closed->num_rows();
         

@@ -31,7 +31,7 @@ class Api extends MY_REST_Controller
     }
 
     public function merch_data_get(){
-        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         
         $this->db->select('id, size_type');
         $size_types =  $this->db->get('size_types')->result_array();
@@ -55,13 +55,14 @@ class Api extends MY_REST_Controller
     }
     public function merch_list_get()
     {
-        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $merch = $this->db->select('*')
                 ->order_by('updated_at','desc')
+                ->where('user_id',$token_data->id)
                 ->get('merch')
                 ->result_array();
         foreach ($merch as $mer) {
-            $mer['merch_list']=$this->db->select('*')->get_where('merch_child',['merch_id'=>$mer['id']])->result_array();
+            $mer['child_list']=$this->db->select('*')->get_where('merch_child',['merch_id'=>$mer['id']])->result_array();
             $data['merch_list'][]=$mer;
         }       
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);

@@ -22,7 +22,7 @@ class Api extends MY_REST_Controller
 
     public function trailer_list_get()
     {
-        //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $target = $_GET['q'];
             //$where="lower('name') like '%".strtolower($target)."%'";
         $data = $this->db->select('*')
@@ -34,13 +34,14 @@ class Api extends MY_REST_Controller
     
     public function trailer_create_post()
     {
-        //$token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
         /*$this->form_validation->set_rules($this->users_address_model->rules);
         if ($this->form_validation->run() == false) {
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
         } else {*/
             $raw_data=[
+                "user_id"=>$token_data->id,
                 "trailer_name"=>$_POST['trailer_name'],
                 "contact_person"=>$_POST['contact_person'],
                 "phone_number"=>$_POST['phone_number'],
@@ -58,15 +59,16 @@ class Api extends MY_REST_Controller
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
 
         // Fetch token data and validate if necessary
-        //$token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
 
         $raw_data = array(
+            "user_id"=>$token_data->id,
             "trailer_name" => $_POST['trailer_name'],
             "contact_person" => $_POST['contact_person'],
             "phone_number" => $_POST['phone_number'],
             "tours" => $_POST['tours'],
             "updated_at" => date('Y-m-d H:i:s'),
-            // "updated_by" => $token_data->id
+            "updated_by" => $token_data->id
         );
 
         // Update the trailer record in the database

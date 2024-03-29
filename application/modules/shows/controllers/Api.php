@@ -21,7 +21,7 @@ class Api extends MY_REST_Controller
 
     public function venue_address_get()
     {
-        //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $target = $_GET['q'];
         if (strlen($target) > 0) {
             $where="lower('name') like '%".strtolower($target)."%'";
@@ -40,7 +40,7 @@ class Api extends MY_REST_Controller
 
     public function shows_list_get($tour_id='')
     {
-        //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
             //$where="lower('name') like '%".strtolower($target)."%'";
         $status=$this->input->get('status');
         if($tour_id == ''){
@@ -102,13 +102,14 @@ class Api extends MY_REST_Controller
     }
     public function show_create_post()
     {
-        //$token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
         /*$this->form_validation->set_rules($this->users_address_model->rules);
         if ($this->form_validation->run() == false) {
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
         } else {*/
             $raw_data=[
+                "user_id"=>$token_data->id,
                 "tour_id"=>$_POST['tour_id'],
                 "start_date"=>$_POST['start_date'],
                 "end_date"=>$_POST['end_date'],
@@ -144,8 +145,10 @@ class Api extends MY_REST_Controller
     public function show_edit_post($show_id)
     {
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
 
         $raw_data = array(
+            "user_id"=>$token_data->id,
             "tour_id"=>$_POST['tour_id'],
             "start_date"=>$_POST['start_date'],
             "end_date"=>$_POST['end_date'],
@@ -171,7 +174,7 @@ class Api extends MY_REST_Controller
             "merchandise_contact_name"=>$_POST['merchandise_contact_name'],
             "merchandise_contact_number"=>$_POST['merchandise_contact_number'],
             "updated_at" => date('Y-m-d H:i:s'),
-            // "updated_by" => $token_data->id
+            "updated_by" => $token_data->id
         );
 
         // Update the show record in the database
@@ -189,11 +192,12 @@ class Api extends MY_REST_Controller
     public function show_change_status_post($show_id)
     {
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
 
         $raw_data = array(
             "status" => $_POST['status'],//'inactive'
             "updated_at" => date('Y-m-d H:i:s'),
-            // "updated_by" => $token_data->id
+            "updated_by" => $token_data->id
         );
 
         // Change the show Status record in the database
@@ -211,12 +215,13 @@ class Api extends MY_REST_Controller
     public function show_postponed_post($show_id)
     {
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
 
         $raw_data = array(
             "start_date"=>$_POST['start_date'],
             "end_date"=>$_POST['end_date'],
             "updated_at" => date('Y-m-d H:i:s'),
-            // "updated_by" => $token_data->id
+            "updated_by" => $token_data->id
         );
 
         // Postponed the show record in the database

@@ -21,6 +21,7 @@ class Api extends MY_REST_Controller
 
     public function add_tours_data_get()
     {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $data['currency'] = $this->db->select('*')
                 ->order_by('code','asc')
                 ->get('currency')
@@ -30,13 +31,14 @@ class Api extends MY_REST_Controller
     }
     public function tour_list_get()
     {
-        //$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-            //$where="lower('name') like '%".strtolower($target)."%'";
+        $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        //$where="lower('name') like '%".strtolower($target)."%'";
         $status=$this->input->get('status');
         $upcoming = $this->db->select('*')
                 ->order_by('tour_name','asc')
                 ->where('start_date >=',date('Y-m-d'))
                 ->where('status','active')
+                ->where('user_id',$token_data->id)
                 ->get('tour');
         $upcoming_count=$upcoming->num_rows();
 
@@ -44,12 +46,14 @@ class Api extends MY_REST_Controller
                 ->order_by('tour_name','asc')
                 ->where('end_date <',date('Y-m-d'))
                 ->where('status','active')
+                ->where('user_id',$token_data->id)
                 ->get('tour');
         $completed_count=$completed->num_rows();
 
         $closed = $this->db->select('*')
                 ->order_by('tour_name','asc')
                 ->where('status','inactive')
+                ->where('user_id',$token_data->id)
                 ->get('tour');
         $closed_count=$closed->num_rows();
         
@@ -70,13 +74,14 @@ class Api extends MY_REST_Controller
     
     public function tour_create_post()
     {
-        //$token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
         /*$this->form_validation->set_rules($this->users_address_model->rules);
         if ($this->form_validation->run() == false) {
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
         } else {*/
             $raw_data=[
+                "user_id"=>$token_data->id,
                 "tour_name"=>$_POST['tour_name'],
                 "tour_type"=>$_POST['tour_type'],
                 "start_date"=>$_POST['start_date'],
@@ -95,16 +100,17 @@ class Api extends MY_REST_Controller
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
 
         // Fetch token data and validate if necessary
-        //$token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
 
         $raw_data = array(
+            "user_id"=>$token_data->id,
             "tour_name" => $_POST['tour_name'],
             "tour_type" => $_POST['tour_type'],
             "start_date" => $_POST['start_date'],
             "end_date" => $_POST['end_date'],
             "report_currency" => $_POST['report_currency'],
             "updated_at" => date('Y-m-d H:i:s'),
-            // "updated_by" => $token_data->id 
+            "updated_by" => $token_data->id 
         );
 
         // Update the tour record in the database

@@ -548,7 +548,8 @@ $config['allowed_cors_headers'] = [
   'X-Requested-With',
   'Content-Type',
   'Accept',
-  'Access-Control-Request-Method'
+  'Access-Control-Request-Method',
+  'X_AUTH_TOKEN' // Include X_AUTH_TOKEN in allowed headers
 ];
 
 /*
@@ -590,4 +591,4 @@ $config['allow_any_cors_domain'] = FALSE;
 | e.g. $config['allowed_origins'] = ['http://www.example.com', 'https://spa.example.com']
 |
 */
-$config['allowed_cors_origins'] = [];
+$config['allowed_cors_origins'] = ['http://shows.prapadtechnologies.com/','https://shows.prapadtechnologies.com/'];

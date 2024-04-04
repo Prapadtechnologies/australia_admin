@@ -102,24 +102,33 @@ class Api extends MY_REST_Controller
         // Fetch token data and validate if necessary
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
 
-        $raw_data = array(
+        $existing_tour_data = $this->db->get_where('tour', array('id' => $tour_id))->row_array();
+
+        if (!$existing_tour_data) {
+            $this->set_response_simple("Tour not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            return;
+        }
+
+        $updated_data  = array(
             "user_id"=>$token_data->id,
-            "tour_name" => $_POST['tour_name'],
-            "tour_type" => $_POST['tour_type'],
-            "start_date" => $_POST['start_date'],
-            "end_date" => $_POST['end_date'],
-            "report_currency" => $_POST['report_currency'],
+            "tour_name" => isset($_POST['tour_name']) ? $_POST['tour_name'] : $existing_tour_data['tour_name'],
+            "tour_type" => isset($_POST['tour_type']) ? $_POST['tour_type'] : $existing_tour_data['tour_type'],
+            "start_date" => isset($_POST['start_date']) ? date('Y-m-d', strtotime($_POST['start_date'])) : $existing_tour_data['start_date'],
+            "end_date" => isset($_POST['end_date']) ? date('Y-m-d', strtotime($_POST['end_date'])) : $existing_tour_data['end_date'],
+            "report_currency" => isset($_POST['report_currency']) ? $_POST['report_currency'] : $existing_tour_data['report_currency'],
             "updated_at" => date('Y-m-d H:i:s'),
             "updated_by" => $token_data->id 
         );
 
         // Update the tour record in the database
         $this->db->where('id', $tour_id);
-        $this->db->update('tour', $raw_data);
+        $this->db->update('tour', $updated_data );
 
         // Check if the update was successful
         if ($this->db->affected_rows() > 0) {
-            $this->set_response_simple("Tour updated successfully", 'Success..!', REST_Controller::HTTP_OK, TRUE);
+            $updated_tour_data = $this->db->get_where('tour', array('id' => $tour_id))->row_array();
+            $this->set_response_simple(($existing_tour_data == FALSE) ? FALSE : $existing_tour_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+            //$this->response($existing_tour_data, REST_Controller::HTTP_OK);
         } else {
             $this->set_response_simple("Failed to update tour", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
         }

@@ -266,7 +266,7 @@ class Auth extends MY_REST_Controller
                     'first_name' => $this->input->post('name'),
                     'unique_id' => $unique_id,
                     'phone' => $this->input->post('mobile'),
-                    'status' => 2
+                    'status' => 1
                 );
                 $group_id[0] = $id;
                 $user_id = $this->ion_auth->register($identity, (empty($this->input->post('password')))? '1234': $this->input->post('password'),$email, $additional_data, $group_id);

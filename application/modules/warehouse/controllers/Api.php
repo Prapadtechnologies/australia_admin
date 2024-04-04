@@ -79,23 +79,35 @@ class Api extends MY_REST_Controller
         // Fetch token data and validate if necessary
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
 
-        $raw_data = array(
+        $existing_warehouse_data = $this->db->get_where('warehouse', array('id' => $warehouse_id))->row_array();
+
+        if (!$existing_warehouse_data) {
+            $this->set_response_simple("Warehouse not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            return;
+        }
+
+        $updated_data  = array(
             "user_id"=>$token_data->id,
-            "warehouse_name" => $_POST['warehouse_name'],
-            "contact_person" => $_POST['contact_person'],
-            "phone_number" => $_POST['phone_number'],
-            "address" => $_POST['address'],
+            "warehouse_name" => isset($_POST['warehouse_name']) ? $_POST['warehouse_name'] : $existing_warehouse_data['warehouse_name'],
+            "contact_person" => isset($_POST['contact_person']) ? $_POST['contact_person'] : $existing_warehouse_data['contact_person'],
+            "phone_number" => isset($_POST['phone_number']) ? $_POST['phone_number'] : $existing_warehouse_data['phone_number'],
+            "address" => isset($_POST['address']) ? $_POST['address'] : $existing_warehouse_data['address'],
             "updated_at" => date('Y-m-d H:i:s'),
-            "updated_by" => $token_data->id
+            "updated_by" => $token_data->id 
         );
 
         // Update the warehouse record in the database
         $this->db->where('id', $warehouse_id);
-        $this->db->update('warehouse', $raw_data);
+        $this->db->update('warehouse', $updated_data );
 
         // Check if the update was successful
         if ($this->db->affected_rows() > 0) {
-            $this->set_response_simple("Warehouse updated successfully", 'Success..!', REST_Controller::HTTP_OK, TRUE);
+             // Fetch the updated warehouse data
+            $updated_warehouse_data = $this->db->get_where('warehouse', array('id' => $warehouse_id))->row_array();
+            
+            // Include the updated warehouse data in the response
+            $this->set_response_simple(($updated_warehouse_data == FALSE) ? FALSE : $updated_warehouse_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+            //$this->response($updated_warehouse_data, REST_Controller::HTTP_OK);
         } else {
             $this->set_response_simple("Failed to update warehouse", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
         }

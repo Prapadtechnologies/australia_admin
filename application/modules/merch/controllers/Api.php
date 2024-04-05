@@ -130,5 +130,47 @@ class Api extends MY_REST_Controller
             $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
         // }
     }
+
+    public function merch_quantity_create_post()
+    {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        /*$this->form_validation->set_rules($this->users_address_model->rules);
+        if ($this->form_validation->run() == false) {
+            $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
+        } else {*/
+        for($i=0; $i < count($_POST); $i++){
+            $qty_data=$_POST[$i];
+            $raw_data=[
+                "merch_id"=>$qty_data['merch_id'],
+                "merch_child_id"=>$qty_data['merch_child_id'],
+                "stock_type"=>$qty_data['stock_type'],
+                "stock_id"=>$qty_data['stock_id'],
+                "quantity"=>$qty_data['quantity'],
+                "cost"=>$qty_data['cost'],
+                "created_at"=>date('Y-m-d H:i:s'),
+                "created_by"=>$token_data->id
+            ];
+            $this->db->insert('merch_quantity_log',$raw_data);
+            $id = $this->db->insert_id();
+            if($id){
+                    $child_data=[
+                        "merch_id"=>$qty_data['merch_id'],
+                        "merch_child_id"=>$qty_data['merch_child_id'],
+                        "stock_type"=>$qty_data['stock_type'],
+                        "stock_id"=>$qty_data['stock_id']
+                    ];
+                    $getdata=$this->db->get_where('merch_quantity',$child_data)->row();
+                    if($getdata){
+                        $quantity=$getdata->quantity+$raw_data['quantity'];
+                        $this->db->where($child_data)->update('merch_quantity',['quantity'=>$quantity]);
+                    }else{
+                        $this->db->insert('merch_quantity',$raw_data);
+                    }
+            }   
+        }
+         $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
+        // }
+    }
 }
 

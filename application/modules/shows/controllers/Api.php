@@ -41,6 +41,7 @@ class Api extends MY_REST_Controller
     public function shows_list_get($tour_id='')
     {
         $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        check_completed_shows();
             //$where="lower('name') like '%".strtolower($target)."%'";
         $status=$this->input->get('status');
         if($tour_id == ''){
@@ -58,7 +59,7 @@ class Api extends MY_REST_Controller
                 $this->db->select('*');
                 $this->db->order_by('start_date','asc');
                 $this->db->where('tour_id',$tour_id);
-                $this->db->where('start_date >=',date('Y-m-d'));
+                //$this->db->where('start_date >=',date('Y-m-d'));
                 $this->db->where('status','active');
         $left = $this->db->get('shows');
         $left_count=$left->num_rows();
@@ -75,8 +76,8 @@ class Api extends MY_REST_Controller
                 $this->db->select('*');
                 $this->db->order_by('start_date','asc');
                 $this->db->where('tour_id',$tour_id);
-                $this->db->where('end_date <',date('Y-m-d'));
-                $this->db->where('status','active');
+                //$this->db->where('end_date <',date('Y-m-d'));
+                $this->db->where('status','completed');
         $completed = $this->db->get('shows');
         $completed_count=$completed->num_rows();
         $completed_data=$completed->result_array();
@@ -147,43 +148,54 @@ class Api extends MY_REST_Controller
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
 
-        $raw_data = array(
+        $existing_show_data = $this->db->get_where('shows', array('id' => $show_id))->row_array();
+
+        if (!$existing_show_data) {
+            $this->set_response_simple("Show not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            return;
+        }
+
+        $updated_data  = array(
             "user_id"=>$token_data->id,
-            "tour_id"=>$_POST['tour_id'],
-            "start_date"=>$_POST['start_date'],
-            "end_date"=>$_POST['end_date'],
-            "note"=>$_POST['note'],
-            "no_of_shows"=>$_POST['no_of_shows'],
-            "venue_name"=>$_POST['venue_name'],
-            "venue_address"=>$_POST['venue_address'],
-            "show_type"=>$_POST['show_type'],
-            "show_capacity"=>$_POST['show_capacity'],
-            "fee_apparel"=>$_POST['fee_apparel'],
-            "fee_others"=>$_POST['fee_others'],
-            "fee_music"=>$_POST['fee_music'],
-            "tax_method"=>$_POST['tax_method'],
-            "tax_apparel"=>$_POST['tax_apparel'],
-            "tax_others"=>$_POST['tax_others'],
-            "tax_music"=>$_POST['tax_music'],
-            "venue_rep_name"=>$_POST['venue_rep_name'],
-            "venue_rep_phone"=>$_POST['venue_rep_phone'],
-            "venue_rep_email"=>$_POST['venue_rep_email'],
-            "tax_id"=>$_POST['tax_id'],
-            "concession_company"=>$_POST['concession_company'],
-            "merchandise_company"=>$_POST['merchandise_company'],
-            "merchandise_contact_name"=>$_POST['merchandise_contact_name'],
-            "merchandise_contact_number"=>$_POST['merchandise_contact_number'],
+            "tour_id" => isset($_POST['tour_id']) ? $_POST['tour_id'] : $existing_show_data['tour_id'],
+            "start_date" => isset($_POST['start_date']) ? date('Y-m-d', strtotime($_POST['start_date'])) : $existing_tour_data['start_date'],
+            "end_date" => isset($_POST['end_date']) ? date('Y-m-d', strtotime($_POST['end_date'])) : $existing_tour_data['end_date'],
+            "note" => isset($_POST['note']) ? $_POST['note'] : $existing_show_data['note'],
+            "no_of_shows"=>isset($_POST['no_of_shows']) ? $_POST['no_of_shows'] : $existing_show_data['no_of_shows'],
+            "venue_name"=>isset($_POST['venue_name']) ? $_POST['venue_name'] : $existing_show_data['venue_name'],
+            "venue_address"=>isset($_POST['venue_address']) ? $_POST['venue_address'] : $existing_show_data['venue_address'],
+            "show_type"=>isset($_POST['show_type']) ? $_POST['show_type'] : $existing_show_data['show_type'],
+            "show_capacity"=>isset($_POST['show_capacity']) ? $_POST['show_capacity'] : $existing_show_data['show_capacity'],
+            "fee_apparel"=>isset($_POST['fee_apparel']) ? $_POST['fee_apparel'] : $existing_show_data['fee_apparel'],
+            "fee_others"=>isset($_POST['fee_others']) ? $_POST['fee_others'] : $existing_show_data['fee_others'],
+            "fee_music"=>isset($_POST['fee_music']) ? $_POST['fee_music'] : $existing_show_data['fee_music'],
+            "tax_method"=>isset($_POST['tax_method']) ? $_POST['tax_method'] : $existing_show_data['tax_method'],
+            "tax_apparel"=>isset($_POST['tax_apparel']) ? $_POST['tax_apparel'] : $existing_show_data['tax_apparel'],
+            "tax_others"=>isset($_POST['tax_others']) ? $_POST['tax_others'] : $existing_show_data['tax_others'],
+            "tax_music"=>isset($_POST['tax_music']) ? $_POST['tax_music'] : $existing_show_data['tax_music'],
+            "venue_rep_name"=>isset($_POST['venue_rep_name']) ? $_POST['venue_rep_name'] : $existing_show_data['venue_rep_name'],
+            "venue_rep_phone"=>isset($_POST['venue_rep_phone']) ? $_POST['venue_rep_phone'] : $existing_show_data['venue_rep_phone'],
+            "venue_rep_email"=>isset($_POST['venue_rep_email']) ? $_POST['venue_rep_email'] : $existing_show_data['venue_rep_email'],
+            "tax_id"=>isset($_POST['tax_id']) ? $_POST['tax_id'] : $existing_show_data['tax_id'],
+            "concession_company"=>isset($_POST['concession_company']) ? $_POST['concession_company'] : $existing_show_data['concession_company'],
+            "merchandise_company"=>isset($_POST['merchandise_company']) ? $_POST['merchandise_company'] : $existing_show_data['merchandise_company'],
+            "merchandise_contact_name"=>isset($_POST['merchandise_contact_name']) ? $_POST['merchandise_contact_name'] : $existing_show_data['merchandise_contact_name'],
+            "merchandise_contact_number"=>isset($_POST['merchandise_contact_number']) ? $_POST['merchandise_contact_number'] : $existing_show_data['merchandise_contact_number'],
             "updated_at" => date('Y-m-d H:i:s'),
             "updated_by" => $token_data->id
         );
 
         // Update the show record in the database
         $this->db->where('id', $show_id);
-        $this->db->update('shows', $raw_data);
+        $this->db->update('shows', $updated_data );
 
         // Check if the update was successful
         if ($this->db->affected_rows() > 0) {
-            $this->set_response_simple("Show Edited successfully", 'Success..!', REST_Controller::HTTP_OK, TRUE);
+            // Fetch the updated show data
+            $updated_show_data = $this->db->get_where('shows', array('id' => $show_id))->row_array();  
+            // Include the updated show data in the response
+            //$this->response($updated_show_data, REST_Controller::HTTP_OK);
+            $this->set_response_simple(($updated_show_data == FALSE) ? FALSE : $updated_show_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
         } else {
             $this->set_response_simple("Failed to Edit the Show", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
         }

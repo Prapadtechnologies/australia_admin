@@ -42,10 +42,10 @@ class Api extends MY_REST_Controller
         } else {*/
             $raw_data=[
                 "user_id"=>$token_data->id,
+                "tour_id"=>$_POST['tour_id'],
                 "trailer_name"=>$_POST['trailer_name'],
                 "contact_person"=>$_POST['contact_person'],
                 "phone_number"=>$_POST['phone_number'],
-                "tours"=>$_POST['tours'],
                 "created_at"=>date('Y-m-d H:i:s'),
                 "created_by"=>$token_data->id
             ];
@@ -61,23 +61,35 @@ class Api extends MY_REST_Controller
         // Fetch token data and validate if necessary
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
 
-        $raw_data = array(
+        $existing_trailer_data = $this->db->get_where('trailer', array('id' => $trailer_id))->row_array();
+
+        if (!$existing_trailer_data) {
+            $this->set_response_simple("Trailer not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            return;
+        }
+
+        $updated_data  = array(
             "user_id"=>$token_data->id,
-            "trailer_name" => $_POST['trailer_name'],
-            "contact_person" => $_POST['contact_person'],
-            "phone_number" => $_POST['phone_number'],
-            "tours" => $_POST['tours'],
+            "tour_id" => isset($_POST['tour_id']) ? $_POST['tour_id'] : $existing_trailer_data['tour_id'],
+            "trailer_name" => isset($_POST['trailer_name']) ? $_POST['trailer_name'] : $existing_trailer_data['trailer_name'],
+            "contact_person" => isset($_POST['contact_person']) ? $_POST['contact_person'] : $existing_trailer_data['contact_person'],
+            "phone_number" => isset($_POST['phone_number']) ? $_POST['phone_number'] : $existing_trailer_data['phone_number'],
             "updated_at" => date('Y-m-d H:i:s'),
             "updated_by" => $token_data->id
         );
 
         // Update the trailer record in the database
         $this->db->where('id', $trailer_id);
-        $this->db->update('trailer', $raw_data);
+        $this->db->update('trailer', $updated_data );
 
         // Check if the update was successful
         if ($this->db->affected_rows() > 0) {
-            $this->set_response_simple("Trailer updated successfully", 'Success..!', REST_Controller::HTTP_OK, TRUE);
+             // Fetch the updated trailer data
+            $updated_trailer_data = $this->db->get_where('trailer', array('id' => $trailer_id))->row_array();
+            
+            // Include the updated trailer data in the response
+            $this->set_response_simple(($updated_trailer_data == FALSE) ? FALSE : $updated_trailer_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+            //$this->response($updated_trailer_data, REST_Controller::HTTP_OK);
         } else {
             $this->set_response_simple("Failed to update trailer", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
         }

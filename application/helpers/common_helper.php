@@ -299,3 +299,14 @@ function getdays($start_date,$end_date)
     $datediff = $now - $your_date;
     return round($datediff / (60 * 60 * 24));*/
 }
+function check_completed_shows()
+{
+    $CI =&  get_instance();
+    $update_data = array(
+        'status' => 'completed'
+    );
+    $CI->db->where('end_date <',date('Y-m-d'));
+    $CI->db->where('status','active');
+    $CI->db->update('shows', $update_data);
+    return TRUE;
+}

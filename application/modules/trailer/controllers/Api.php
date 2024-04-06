@@ -42,7 +42,6 @@ class Api extends MY_REST_Controller
         } else {*/
             $raw_data=[
                 "user_id"=>$token_data->id,
-                "tour_id"=>$_POST['tour_id'],
                 "trailer_name"=>$_POST['trailer_name'],
                 "contact_person"=>$_POST['contact_person'],
                 "phone_number"=>$_POST['phone_number'],
@@ -70,7 +69,6 @@ class Api extends MY_REST_Controller
 
         $updated_data  = array(
             "user_id"=>$token_data->id,
-            "tour_id" => isset($_POST['tour_id']) ? $_POST['tour_id'] : $existing_trailer_data['tour_id'],
             "trailer_name" => isset($_POST['trailer_name']) ? $_POST['trailer_name'] : $existing_trailer_data['trailer_name'],
             "contact_person" => isset($_POST['contact_person']) ? $_POST['contact_person'] : $existing_trailer_data['contact_person'],
             "phone_number" => isset($_POST['phone_number']) ? $_POST['phone_number'] : $existing_trailer_data['phone_number'],

@@ -56,15 +56,53 @@ class Api extends MY_REST_Controller
     public function merch_list_get()
     {
         $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $merch = $this->db->select('*')
-                ->order_by('updated_at','desc')
-                ->where('user_id',$token_data->id)
-                ->get('merch')
-                ->result_array();
+        $stock_type=$this->input->get('stock_type');
+        $stock_id=$this->input->get('stock_id');
+        $merch_ids='';
+        if($stock_type != '' && $stock_id != ''){
+            $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>$stock_type,'stock_id'=>$stock_id])->result_array();
+        }
+        $this->db->select('*');
+        $this->db->order_by('updated_at','desc');
+        $this->db->where('user_id',$token_data->id);
+        if($merch_ids != ''){
+            $this->db->where_in('id',array_column($merch_ids,'merch_id'));
+        }
+        $merch = $this->db->get('merch')->result_array();
+        
         foreach ($merch as $mer) {
-            $mer['child_list']=$this->db->select('*')->get_where('merch_child',['merch_id'=>$mer['id']])->result_array();
+            $child_data=$this->db->select('*')->get_where('merch_child',['merch_id'=>$mer['id']])->result_array();
+            $child_list_data=[];
+            $total_quantity_count=0;
+            foreach ($child_data as $qty_child) {
+                if($stock_type != '' && $stock_id != ''){
+                    $warehouse_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'warehouse','stock_id'=>$stock_id];
+                    $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer','stock_id'=>$stock_id];
+                }else{
+                    $warehouse_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'warehouse'];
+                    $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer'];
+                }
+                $warehouse_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$warehouse_where)->row_array();
+
+                $trailer_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
+
+                $warehouse_onhand_total=($warehouse_onhand['total_quantity'] != '')? $warehouse_onhand['total_quantity'] : 0;
+                $trailer_onhand_total=($trailer_onhand['total_quantity'] != '')? $trailer_onhand['total_quantity'] : 0;
+                $qty_total=$warehouse_onhand_total+$trailer_onhand_total;
+                $qty_child['ordered']=0;
+                $qty_child['warehouse_inbound']=0;
+                $qty_child['warehouse_onhand']=$warehouse_onhand_total;
+                $qty_child['trailer_inbound']=0;
+                $qty_child['trailer_onhand']=$trailer_onhand_total;
+                $qty_child['total']=$qty_total;                
+                $child_list_data[]=$qty_child;
+                $total_quantity_count=$total_quantity_count+$qty_total;
+            }
+            $mer['quantity_total']=$total_quantity_count;
+            $mer['child_list']=$child_list_data;
             $data['merch_list'][]=$mer;
-        }       
+        }
+              
         $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     public function merch_create_post()

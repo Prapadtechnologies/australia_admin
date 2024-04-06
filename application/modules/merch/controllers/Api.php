@@ -62,18 +62,20 @@ class Api extends MY_REST_Controller
         if($stock_type != '' && $stock_id != ''){
             $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>$stock_type,'stock_id'=>$stock_id])->result_array();
         }
-        $this->db->select('*');
-        $this->db->order_by('updated_at','desc');
-        $this->db->where('user_id',$token_data->id);
+        $this->db->select('m.*,s.name,');
+        $this->db->join('sub_categories as s','s.id = m.product_type');
+        $this->db->order_by('m.updated_at','desc');
+        $this->db->where('m.user_id',$token_data->id);
         if($merch_ids != ''){
-            $this->db->where_in('id',array_column($merch_ids,'merch_id'));
+            $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
         }
-        $merch = $this->db->get('merch')->result_array();
+        $merch = $this->db->get('merch as m')->result_array();
         
         foreach ($merch as $mer) {
-            $child_data=$this->db->select('*')->get_where('merch_child',['merch_id'=>$mer['id']])->result_array();
+            $child_data=$this->db->select('m.*,s.size_name')->join('sizes as s','s.id = m.size')->get_where('merch_child as m',['m.merch_id'=>$mer['id']])->result_array();
             $child_list_data=[];
             $total_quantity_count=0;
+            $l_ordered=$l_warehouse_inbound=$l_warehouse_onhand=$l_trailer_inbound=$l_trailer_onhand=$l_total=$l_out_bound=$l_avg_cost=$sizes_list_api=[];
             foreach ($child_data as $qty_child) {
                 if($stock_type != '' && $stock_id != ''){
                     $warehouse_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'warehouse','stock_id'=>$stock_id];
@@ -97,8 +99,30 @@ class Api extends MY_REST_Controller
                 $qty_child['total']=$qty_total;                
                 $child_list_data[]=$qty_child;
                 $total_quantity_count=$total_quantity_count+$qty_total;
+
+                $l_ordered[]=0;
+                $l_warehouse_inbound[]=0;
+                $l_warehouse_onhand[]=$warehouse_onhand_total;
+                $l_trailer_inbound[]=0;
+                $l_trailer_onhand[]=$trailer_onhand_total;
+                $l_total[]=$qty_total;
+                $l_out_bound[]=0;
+                $l_avg_cost[]=$qty_child['cost'];
+                $sizes_list_api[]=$qty_child['size_name'];
             }
+            $mer['total_merch']=100;
             $mer['quantity_total']=$total_quantity_count;
+            $mer['ordered']=['title'=>'Ordered','data'=>$l_ordered];
+            $mer['warehouse']=[['title'=>'In Bound','data'=>$l_warehouse_inbound],['title'=>'On Hand','data'=>$l_warehouse_onhand],['title'=>'Out Bound','data'=>$l_out_bound]];
+            $mer['trailer']=[['title'=>'In Bound','data'=>$l_trailer_inbound],['title'=>'On Hand','data'=>$l_trailer_onhand],['title'=>'Out Bound','data'=>$l_out_bound]];
+            $mer['total']=['title'=>'Total','data'=>$l_total];
+            $mer['avg_cost']=['title'=>'Avg.Cost','data'=>$l_avg_cost];
+            $mer['graph']=[
+                'min_limit'=>min($l_total),
+                'max_limit'=>max($l_total),
+                'Y_axis'=>$sizes_list_api,
+                'graph_data'=>$l_total
+            ];
             $mer['child_list']=$child_list_data;
             $data['merch_list'][]=$mer;
         }

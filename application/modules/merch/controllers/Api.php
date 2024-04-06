@@ -112,11 +112,17 @@ class Api extends MY_REST_Controller
             }
             $mer['total_merch']=100;
             $mer['quantity_total']=$total_quantity_count;
-            $mer['ordered']=['title'=>'Ordered','data'=>$l_ordered];
-            $mer['warehouse']=[['title'=>'In Bound','data'=>$l_warehouse_inbound],['title'=>'On Hand','data'=>$l_warehouse_onhand],['title'=>'Out Bound','data'=>$l_out_bound]];
-            $mer['trailer']=[['title'=>'In Bound','data'=>$l_trailer_inbound],['title'=>'On Hand','data'=>$l_trailer_onhand],['title'=>'Out Bound','data'=>$l_out_bound]];
+            if($stock_type != '' && $stock_id != ''){
+                $mer['warehouse']=[['title'=>'In Bound','data'=>$l_warehouse_inbound],['title'=>'On Hand','data'=>$l_warehouse_onhand],['title'=>'Out Bound','data'=>$l_out_bound]];
+                $mer['trailer']=[['title'=>'In Bound','data'=>$l_trailer_inbound],['title'=>'On Hand','data'=>$l_trailer_onhand],['title'=>'Out Bound','data'=>$l_out_bound]];
+                $mer['avg_cost']=['title'=>'Avg.Cost','data'=>$l_avg_cost];
+            }else{
+                $mer['ordered']=['title'=>'Ordered','data'=>$l_ordered];
+                $mer['warehouse']=[['title'=>'In Bound','data'=>$l_warehouse_inbound],['title'=>'On Hand','data'=>$l_warehouse_onhand]];
+                $mer['trailer']=[['title'=>'In Bound','data'=>$l_trailer_inbound],['title'=>'On Hand','data'=>$l_trailer_onhand]];
+            }
             $mer['total']=['title'=>'Total','data'=>$l_total];
-            $mer['avg_cost']=['title'=>'Avg.Cost','data'=>$l_avg_cost];
+            
             $mer['graph']=[
                 'min_limit'=>min($l_total),
                 'max_limit'=>max($l_total),

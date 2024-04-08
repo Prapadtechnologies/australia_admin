@@ -27,7 +27,7 @@ class Api extends MY_REST_Controller
                 ->get('currency')
                 ->result_array();
         $data['tour_types']=['Headline','Support','Festival'];
-        $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     public function tour_list_get()
     {
@@ -69,7 +69,7 @@ class Api extends MY_REST_Controller
             ['key'=>'closed','label'=>'Closed Tours','count'=>$closed_count],
         ];
         $data['list']=$list_data;
-        $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     
     public function tour_create_post()
@@ -127,7 +127,7 @@ class Api extends MY_REST_Controller
         // Check if the update was successful
         if ($this->db->affected_rows() > 0) {
             $updated_tour_data = $this->db->get_where('tour', array('id' => $tour_id))->row_array();
-            $this->set_response_simple(($existing_tour_data == FALSE) ? FALSE : $existing_tour_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+            $this->set_response_simple(($existing_tour_data == FALSE) ? [] : $existing_tour_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
             //$this->response($existing_tour_data, REST_Controller::HTTP_OK);
         } else {
             $this->set_response_simple("Failed to update tour", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);

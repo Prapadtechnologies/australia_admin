@@ -35,7 +35,7 @@ class Api extends MY_REST_Controller
                     ->get('venue_address')
                     ->result_array();
         }
-        $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
 
     public function shows_list_get($tour_id='')
@@ -99,7 +99,7 @@ class Api extends MY_REST_Controller
         // $data['list']['left']=$left_data;
         // $data['list']['cancelled']=$cancelled_data;
         // $data['list']['completed']=$completed_data;
-        $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     public function show_create_post()
     {
@@ -195,7 +195,7 @@ class Api extends MY_REST_Controller
             $updated_show_data = $this->db->get_where('shows', array('id' => $show_id))->row_array();  
             // Include the updated show data in the response
             //$this->response($updated_show_data, REST_Controller::HTTP_OK);
-            $this->set_response_simple(($updated_show_data == FALSE) ? FALSE : $updated_show_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+            $this->set_response_simple(($updated_show_data == FALSE) ? [] : $updated_show_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
         } else {
             $this->set_response_simple("Failed to Edit the Show", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
         }

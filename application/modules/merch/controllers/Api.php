@@ -27,7 +27,7 @@ class Api extends MY_REST_Controller
             $size['size_list']=$this->db->select('id,size_type,size_name')->get_where('sizes',['size_type'=>$size['id']])->result_array();
             $data['size_types'][]=$size;
         }
-        $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
 
     public function merch_data_get(){
@@ -51,7 +51,7 @@ class Api extends MY_REST_Controller
         $data['country']=$this->db->get('country')->result_array();
         $data['colours']=$this->db->get('colours')->result_array();
 
-        $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     public function merch_list_get()
     {
@@ -61,16 +61,23 @@ class Api extends MY_REST_Controller
         $merch_ids='';
         if($stock_type != '' && $stock_id != ''){
             $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>$stock_type,'stock_id'=>$stock_id])->result_array();
+            if(count($merch_ids) > 0){
+                $this->db->select('m.*,s.name,');
+                $this->db->join('sub_categories as s','s.id = m.product_type');
+                $this->db->order_by('m.updated_at','desc');
+                $this->db->where('m.user_id',$token_data->id);
+                $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
+                $merch = $this->db->get('merch as m')->result_array();
+            }else{
+                $merch=[];
+            }
+        }else{
+            $this->db->select('m.*,s.name,');
+            $this->db->join('sub_categories as s','s.id = m.product_type');
+            $this->db->order_by('m.updated_at','desc');
+            $this->db->where('m.user_id',$token_data->id);
+            $merch = $this->db->get('merch as m')->result_array();
         }
-        $this->db->select('m.*,s.name,');
-        $this->db->join('sub_categories as s','s.id = m.product_type');
-        $this->db->order_by('m.updated_at','desc');
-        $this->db->where('m.user_id',$token_data->id);
-        if($merch_ids != ''){
-            $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
-        }
-        $merch = $this->db->get('merch as m')->result_array();
-        
         foreach ($merch as $mer) {
             $child_data=$this->db->select('m.*,s.size_name')->join('sizes as s','s.id = m.size')->get_where('merch_child as m',['m.merch_id'=>$mer['id']])->result_array();
             $child_list_data=[];
@@ -124,8 +131,8 @@ class Api extends MY_REST_Controller
             $mer['total']=['title'=>'Total','data'=>$l_total];
             
             $mer['graph']=[
-                'min_limit'=>min($l_total),
-                'max_limit'=>max($l_total),
+                'min_limit'=>0,//min($l_total),
+                'max_limit'=>500,//max($l_total),
                 'Y_axis'=>$sizes_list_api,
                 'graph_data'=>$l_total
             ];
@@ -133,7 +140,7 @@ class Api extends MY_REST_Controller
             $data['merch_list'][]=$mer;
         }
               
-        $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     public function merch_create_post()
     {

@@ -47,7 +47,7 @@ class Api extends MY_REST_Controller
                 ->order_by('created_at','desc')
                 ->get('warehouse')
                 ->result_array();
-        $this->set_response_simple(($data == FALSE) ? FALSE : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     
     public function warehouse_create_post()
@@ -106,7 +106,7 @@ class Api extends MY_REST_Controller
             $updated_warehouse_data = $this->db->get_where('warehouse', array('id' => $warehouse_id))->row_array();
             
             // Include the updated warehouse data in the response
-            $this->set_response_simple(($updated_warehouse_data == FALSE) ? FALSE : $updated_warehouse_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+            $this->set_response_simple(($updated_warehouse_data == FALSE) ? [] : $updated_warehouse_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
             //$this->response($updated_warehouse_data, REST_Controller::HTTP_OK);
         } else {
             $this->set_response_simple("Failed to update warehouse", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);

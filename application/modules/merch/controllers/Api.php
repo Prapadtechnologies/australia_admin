@@ -79,7 +79,7 @@ class Api extends MY_REST_Controller
             $merch = $this->db->get('merch as m')->result_array();
         }
         foreach ($merch as $mer) {
-            $child_data=$this->db->select('m.*,s.size_name')->join('sizes as s','s.id = m.size')->get_where('merch_child as m',['m.merch_id'=>$mer['id']])->result_array();
+            $child_data=$this->db->select('m.*,s.size_name,c.colour_name')->join('sizes as s','s.id = m.size')->join('colours as c','c.id = m.colour')->get_where('merch_child as m',['m.merch_id'=>$mer['id']])->result_array();
             $child_list_data=[];
             $total_quantity_count=0;
             $l_ordered=$l_warehouse_inbound=$l_warehouse_onhand=$l_trailer_inbound=$l_trailer_onhand=$l_total=$l_out_bound=$l_avg_cost=$sizes_list_api=[];

@@ -40,13 +40,13 @@ class Api extends MY_REST_Controller
 
     public function warehouse_list_get()
     {
-        $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         //$target = $_GET['q'];
             //$where="lower('name') like '%".strtolower($target)."%'";
         $data = $this->db->select('*')
                 ->order_by('created_at','desc')
-                ->get('warehouse')
                 ->where('user_id',$token_data->id)
+                ->get('warehouse')
                 ->result_array();
         $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }

@@ -46,6 +46,7 @@ class Api extends MY_REST_Controller
         $data = $this->db->select('*')
                 ->order_by('created_at','desc')
                 ->get('warehouse')
+                ->where('user_id',$token_data->id)
                 ->result_array();
         $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }

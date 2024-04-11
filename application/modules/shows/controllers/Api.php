@@ -25,13 +25,13 @@ class Api extends MY_REST_Controller
         $target = $_GET['q'];
         if (strlen($target) > 0) {
             $where="lower('name') like '%".strtolower($target)."%'";
-            $data = $this->db->select('id, name, addressLineOne')
+            $data = $this->db->select('id, name, addressLineOne,capacity')
                     ->like('name', $target, 'both')
                     ->or_like('addressLineOne', $target, 'both')
                     ->get('venue_address')
                     ->result_array();
         }else{
-            $data = $this->db->select('id, name, addressLineOne')
+            $data = $this->db->select('id, name, addressLineOne,capacity')
                     ->get('venue_address')
                     ->result_array();
         }

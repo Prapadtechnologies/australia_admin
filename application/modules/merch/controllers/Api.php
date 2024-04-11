@@ -203,11 +203,37 @@ class Api extends MY_REST_Controller
                     ];
                     $this->db->insert('merch_child',$child_data);
                 }
+                if (!file_exists('./uploads/merch_image')) {
+                    mkdir('./uploads/merch_image', 0777, true);
+                }
+                if($this->input->post('image1')){
+                    file_put_contents("./uploads/merch_image/merch_1_".$id.".png", base64_decode($this->input->post('image1')));
+                }
+                if($this->input->post('image2')){
+                    file_put_contents("./uploads/merch_image/merch_2_".$id.".png", base64_decode($this->input->post('image2')));
+                }
+
             }
             $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
         // }
     }
-
+    public function merchimage_post(){
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        //print_r($this->input->post('image1'));die;
+        
+        if (!file_exists('./uploads/merch_image')) {
+            mkdir('./uploads/merch_image', 0777, true);
+        }
+        if($this->input->post('image1')){
+            file_put_contents("./uploads/merch_image/merch_".$this->input->post('merch_id').".png", base64_decode($this->input->post('image1')));
+        }
+        if($is_updated){
+            $this->set_response_simple(($is_updated == FALSE) ? FALSE : $is_updated, 'Success..!', REST_Controller::HTTP_ACCEPTED, TRUE);
+        }else {
+            $this->set_response_simple(($is_updated == FALSE) ? FALSE : $is_updated, 'Failed..!', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, TRUE);
+        }
+    }
     public function merch_quantity_create_post()
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));

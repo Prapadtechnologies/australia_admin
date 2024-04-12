@@ -59,6 +59,7 @@ class Api extends MY_REST_Controller
         $stock_type=$this->input->get('stock_type');
         $stock_id=$this->input->get('stock_id');
         $merch_ids='';
+        $data=[];
         if($stock_type != '' && $stock_id != ''){
             $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>$stock_type,'stock_id'=>$stock_id])->result_array();
             if(count($merch_ids) > 0){
@@ -74,8 +75,8 @@ class Api extends MY_REST_Controller
             }
         }else{
             $this->db->select('m.*,s.name,c.colour_name');
-            $this->db->join('sub_categories as s','s.id = m.product_type');
-            $this->db->join('colours as c','c.id = m.colour');
+            $this->db->join('sub_categories as s','s.id = m.product_type','left');
+            $this->db->join('colours as c','c.id = m.colour','left');
             $this->db->order_by('m.updated_at','desc');
             $this->db->where('m.user_id',$token_data->id);
             $merch = $this->db->get('merch as m')->result_array();
@@ -119,6 +120,8 @@ class Api extends MY_REST_Controller
                 $l_avg_cost[]=$qty_child['cost'];
                 $sizes_list_api[]=$qty_child['size_name'];
             }
+            $mer['image1']=base_url('uploads/merch_image/merch_1_'.$mer['id'].'.png');
+            $mer['image2']=base_url('uploads/merch_image/merch_2_'.$mer['id'].'.png');
             $mer['total_merch']=100;
             $mer['quantity_total']=$total_quantity_count;
             if($stock_type != '' && $stock_id != ''){
@@ -221,7 +224,7 @@ class Api extends MY_REST_Controller
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
         //print_r($this->input->post('image1'));die;
-        
+
         if (!file_exists('./uploads/merch_image')) {
             mkdir('./uploads/merch_image', 0777, true);
         }

@@ -84,7 +84,7 @@ class Api extends MY_REST_Controller
 
 
         $data['shows_status']=[
-            ['key'=>'total','label'=>'Total Shows','count'=>$total_count],
+            //['key'=>'total','label'=>'Total Shows','count'=>$total_count],
             ['key'=>'left','label'=>'Shows Left','count'=>$left_count],
             ['key'=>'cancelled','label'=>'Cancelled','count'=>$cancelled_count],
             ['key'=>'completed','label'=>'Completed','count'=>$completed_count]

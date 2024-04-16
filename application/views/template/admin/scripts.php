@@ -313,3 +313,148 @@ function geocodeLatLng(lat, lng) {
 
 
 </script>
+<script>
+function confirmDelete(categoryId) {
+    if (confirm("Are you sure you want to delete ?")) {
+        // User clicked "OK", send AJAX request to delete category
+        $.ajax({
+            url: "<?php echo base_url('admin/deleteCategory'); ?>",
+            type: "POST",
+            data: { category_id: categoryId },
+            success: function(response) {
+                // Reload the page after deletion
+                window.location.reload();
+            }
+        });
+    }
+}
+    
+</script>
+<script>
+function confirmsubcategoryDelete(subcategoryId) {
+    if (confirm("Are you sure you want to delete ?")) {
+        // User clicked "OK", send AJAX request to delete category
+        $.ajax({
+            url: "<?php echo base_url('admin/deletesubCategory'); ?>",
+            type: "POST",
+            data: { subcategory_id: subcategoryId },
+            success: function(response) {
+                // Reload the page after deletion
+                window.location.reload();
+            }
+        });
+    }
+}
+</script>
+<script>
+function confirmcolorDelete(colorId) {
+    if (confirm("Are you sure you want to delete ?")) {
+        // User clicked "OK", send AJAX request to delete category
+        $.ajax({
+            url: "<?php echo base_url('admin/deleteColour'); ?>",
+            type: "POST",
+            data: { category_id: colorId },
+            success: function(response) {
+                // Reload the page after deletion
+                window.location.reload();
+            }
+        });
+    }
+}
+</script>
+<script>
+function confirmcountryDelete(countryId) {
+    if (confirm("Are you sure you want to delete ?")) {
+        // User clicked "OK", send AJAX request to delete category
+        $.ajax({
+            url: "<?php echo base_url('admin/deletecountry'); ?>",
+            type: "POST",
+            data: { country_id: countryId },
+            success: function(response) {
+                // Reload the page after deletion
+                window.location.reload();
+            }
+        });
+    }
+}
+</script>
+<script>
+function confirmcurrencyDelete(currencyId) {
+    if (confirm("Are you sure you want to delete ?")) {
+        // User clicked "OK", send AJAX request to delete category
+        $.ajax({
+            url: "<?php echo base_url('admin/deletecurrency'); ?>",
+            type: "POST",
+            data: { currency_id: currencyId },
+            success: function(response) {
+                // Reload the page after deletion
+                window.location.reload();
+            }
+        });
+    }
+}
+</script>
+<script>
+function confirmsizeDelete(sizeId) {
+    if (confirm("Are you sure you want to delete ?")) {
+        // User clicked "OK", send AJAX request to delete category
+        $.ajax({
+            url: "<?php echo base_url('admin/deletesize'); ?>",
+            type: "POST",
+            data: { size_id: sizeId },
+            success: function(response) {
+                // Reload the page after deletion
+                window.location.reload();
+            }
+        });
+    }
+}
+</script>
+<script>
+function confirmsizetypeDelete(sizetypeId) {
+    if (confirm("Are you sure you want to delete ?")) {
+        // User clicked "OK", send AJAX request to delete category
+        $.ajax({
+            url: "<?php echo base_url('admin/deletesize_types'); ?>",
+            type: "POST",
+            data: { size_types_id: sizetypeId },
+            success: function(response) {
+                // Reload the page after deletion
+                window.location.reload();
+            }
+        });
+    }
+}
+</script>
+<script>
+function confirmvenueDelete(venueId) {
+    if (confirm("Are you sure you want to delete ?")) {
+        // User clicked "OK", send AJAX request to delete category
+        $.ajax({
+            url: "<?php echo base_url('admin/deletevenue_address'); ?>",
+            type: "POST",
+            data: { category_id: venueId },
+            success: function(response) {
+                // Reload the page after deletion
+                window.location.reload();
+            }
+        });
+    }
+}
+</script>
+<script>
+function confirmuseradminDelete(userId) {
+    if (confirm("Are you sure you want to delete ?")) {
+        // User clicked "OK", send AJAX request to delete category
+        $.ajax({
+            url: "<?php echo base_url('admin/deleteusers_admin'); ?>",
+            type: "POST",
+            data: { category_id: userId },
+            success: function(response) {
+                // Reload the page after deletion
+                window.location.reload();
+            }
+        });
+    }
+}
+</script>

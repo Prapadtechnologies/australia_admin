@@ -133,9 +133,6 @@ class Api extends MY_REST_Controller
                 "venue_rep_email"=>$_POST['venue_rep_email'],
                 "tax_id"=>$_POST['tax_id'],
                 "concession_company"=>$_POST['concession_company'],
-                "merchandise_company"=>$_POST['merchandise_company'],
-                "merchandise_contact_name"=>$_POST['merchandise_contact_name'],
-                "merchandise_contact_number"=>$_POST['merchandise_contact_number'],
                 "created_at"=>date('Y-m-d H:i:s'),
                 "created_by"=>$token_data->id
             ];
@@ -180,9 +177,6 @@ class Api extends MY_REST_Controller
             "venue_rep_email"=>isset($_POST['venue_rep_email']) ? $_POST['venue_rep_email'] : $existing_show_data['venue_rep_email'],
             "tax_id"=>isset($_POST['tax_id']) ? $_POST['tax_id'] : $existing_show_data['tax_id'],
             "concession_company"=>isset($_POST['concession_company']) ? $_POST['concession_company'] : $existing_show_data['concession_company'],
-            "merchandise_company"=>isset($_POST['merchandise_company']) ? $_POST['merchandise_company'] : $existing_show_data['merchandise_company'],
-            "merchandise_contact_name"=>isset($_POST['merchandise_contact_name']) ? $_POST['merchandise_contact_name'] : $existing_show_data['merchandise_contact_name'],
-            "merchandise_contact_number"=>isset($_POST['merchandise_contact_number']) ? $_POST['merchandise_contact_number'] : $existing_show_data['merchandise_contact_number'],
             "updated_at" => date('Y-m-d H:i:s'),
             "updated_by" => $token_data->id
         );

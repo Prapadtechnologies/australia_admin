@@ -80,16 +80,20 @@ class Api extends MY_REST_Controller
         if ($this->form_validation->run() == false) {
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
         } else {*/
+            $start_date = date('Y-m-d H:i:s', strtotime($_POST['start_date']));
+            $end_date = date('Y-m-d H:i:s', strtotime($_POST['end_date']));
+
             $raw_data=[
                 "user_id"=>$token_data->id,
                 "tour_name"=>$_POST['tour_name'],
                 "tour_type"=>$_POST['tour_type'],
-                "start_date"=>$_POST['start_date'],
-                "end_date"=>$_POST['end_date'],
+                "start_date"=>$start_date,
+                "end_date"=>$end_date,
                 "report_currency"=>$_POST['report_currency'],
                 "merchandise_company"=>$_POST['merchandise_company'],
                 "merchandise_contact_name"=>$_POST['merchandise_contact_name'],
                 "merchandise_contact_number"=>$_POST['merchandise_contact_number'],
+                "vend_percentage"=>$_POST['vend_percentage'],
                 "created_at"=>date('Y-m-d H:i:s'),
                 "created_by"=>$token_data->id
             ];
@@ -122,6 +126,7 @@ class Api extends MY_REST_Controller
             "merchandise_company" => isset($_POST['merchandise_company']) ? $_POST['merchandise_company'] : $existing_tour_data['merchandise_company'],
             "merchandise_contact_name" => isset($_POST['merchandise_contact_name']) ? $_POST['merchandise_contact_name'] : $existing_tour_data['merchandise_contact_name'],
             "merchandise_contact_number" => isset($_POST['merchandise_contact_number']) ? $_POST['merchandise_contact_number'] : $existing_tour_data['merchandise_contact_number'],
+            "vend_percentage" => isset($_POST['vend_percentage']) ? $_POST['vend_percentage'] : $existing_tour_data['vend_percentage'],
             "updated_at" => date('Y-m-d H:i:s'),
             "updated_by" => $token_data->id 
         );

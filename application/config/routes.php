@@ -66,6 +66,54 @@ $route['plans'] = 'admin/plans';
 $route['addplan'] = 'admin/plans/addplan';
 $route['sample'] = 'admin/dashboard/sample';
 $route['settings/(:any)'] = 'admin/settings/$1';
+
+$route['Categories'] = 'admin/categories';
+$route['add_categories'] = 'admin/add_categories';
+$route['edit_categories'] = 'admin/edit_categories';
+
+$route['SubCategories'] = 'admin/subcategories';
+$route['edit_subcategories'] = 'admin/edit_subcategories';
+$route['add_sub_categories'] = 'admin/add_sub_categories';
+
+$route['Colours'] = 'admin/colours';
+$route['add_colours'] = 'admin/add_colours';
+$route['edit_colours'] = 'admin/edit_colours';
+
+$route['Countries'] = 'admin/countries';
+$route['add_countries'] = 'admin/add_countries';
+$route['edit_countries'] = 'admin/edit_countries';
+
+$route['Currency'] = 'admin/currency';
+$route['add_currency'] = 'admin/add_currency';
+$route['edit_currency'] = 'admin/edit_currency';
+
+$route['Sizes'] = 'admin/sizes';
+$route['add_sizes'] = 'admin/add_sizes';
+$route['edit_sizes'] = 'admin/edit_sizes';
+
+$route['SizesTypes'] = 'admin/sizestypes';
+$route['add_sizes_types'] = 'admin/add_sizes_types';
+$route['edit_sizes_types'] = 'admin/edit_sizes_types';
+
+
+$route['UsersAdmin'] = 'admin/users_admin';
+$route['add_users_admin'] = 'admin/add_users_admin';
+$route['edit_users_admin'] = 'admin/edit_users_admin';
+
+
+
+$route['VenueAddress'] = 'admin/venue_address';
+$route['add_venue_address'] = 'admin/add_venue_address';
+$route['edit_venue_address'] = 'admin/edit_venue_address';
+
+
+
+
+
+
+
+
+
 $route['vendor_settings/(:any)'] = 'admin/vendor_settings/$1';
 $route['sliders/(:any)'] = 'admin/sliders/$1';
 $route['category_banner/(:any)'] = 'admin/category_banner/$1';

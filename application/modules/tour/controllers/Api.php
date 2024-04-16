@@ -80,13 +80,20 @@ class Api extends MY_REST_Controller
         if ($this->form_validation->run() == false) {
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
         } else {*/
+            $start_date = date('Y-m-d H:i:s', strtotime($_POST['start_date']));
+            $end_date = date('Y-m-d H:i:s', strtotime($_POST['end_date']));
+
             $raw_data=[
                 "user_id"=>$token_data->id,
                 "tour_name"=>$_POST['tour_name'],
                 "tour_type"=>$_POST['tour_type'],
-                "start_date"=>$_POST['start_date'],
-                "end_date"=>$_POST['end_date'],
+                "start_date"=>$start_date,
+                "end_date"=>$end_date,
                 "report_currency"=>$_POST['report_currency'],
+                "merchandise_company"=>$_POST['merchandise_company'],
+                "merchandise_contact_name"=>$_POST['merchandise_contact_name'],
+                "merchandise_contact_number"=>$_POST['merchandise_contact_number'],
+                "vend_percentage"=>$_POST['vend_percentage'],
                 "created_at"=>date('Y-m-d H:i:s'),
                 "created_by"=>$token_data->id
             ];
@@ -116,6 +123,10 @@ class Api extends MY_REST_Controller
             "start_date" => isset($_POST['start_date']) ? date('Y-m-d', strtotime($_POST['start_date'])) : $existing_tour_data['start_date'],
             "end_date" => isset($_POST['end_date']) ? date('Y-m-d', strtotime($_POST['end_date'])) : $existing_tour_data['end_date'],
             "report_currency" => isset($_POST['report_currency']) ? $_POST['report_currency'] : $existing_tour_data['report_currency'],
+            "merchandise_company" => isset($_POST['merchandise_company']) ? $_POST['merchandise_company'] : $existing_tour_data['merchandise_company'],
+            "merchandise_contact_name" => isset($_POST['merchandise_contact_name']) ? $_POST['merchandise_contact_name'] : $existing_tour_data['merchandise_contact_name'],
+            "merchandise_contact_number" => isset($_POST['merchandise_contact_number']) ? $_POST['merchandise_contact_number'] : $existing_tour_data['merchandise_contact_number'],
+            "vend_percentage" => isset($_POST['vend_percentage']) ? $_POST['vend_percentage'] : $existing_tour_data['vend_percentage'],
             "updated_at" => date('Y-m-d H:i:s'),
             "updated_by" => $token_data->id 
         );
@@ -131,6 +142,41 @@ class Api extends MY_REST_Controller
             //$this->response($existing_tour_data, REST_Controller::HTTP_OK);
         } else {
             $this->set_response_simple("Failed to update tour", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+        }
+    }
+
+    public function tour_cancel_post($tour_id)
+    {
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+        // Fetch token data and validate if necessary
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+
+        $existing_tour_data = $this->db->get_where('tour', array('id' => $tour_id))->row_array();
+
+        if (!$existing_tour_data) {
+            $this->set_response_simple("Tour not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            return;
+        }
+
+        $updated_status  = array(
+            "user_id"=>$token_data->id,
+            "status" => isset($_POST['status']) ? $_POST['status'] : $existing_tour_data['status'],//inactive
+            "updated_at" => date('Y-m-d H:i:s'),
+            "updated_by" => $token_data->id
+        );
+
+        // Update the tour record in the database
+        $this->db->where('id', $tour_id);
+        $this->db->update('tour', $updated_status);
+
+        // Check if the update was successful
+        if ($this->db->affected_rows() > 0) {
+            $updated_tour_status = $this->db->get_where('tour', array('id' => $tour_id))->row_array();
+            $this->set_response_simple(($existing_tour_data == FALSE) ? [] : $existing_tour_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+            //$this->response($existing_tour_data, REST_Controller::HTTP_OK);
+        } else {
+            $this->set_response_simple("Failed to Cancel tour", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
         }
     }
 }

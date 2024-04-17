@@ -308,5 +308,9 @@ function check_completed_shows()
     $CI->db->where('end_date <',date('Y-m-d'));
     $CI->db->where('status','active');
     $CI->db->update('shows', $update_data);
+
+    $CI->db->where('end_date <',date('Y-m-d'));
+    $CI->db->where('status','active');
+    $CI->db->update('tour', $update_data);
     return TRUE;
 }

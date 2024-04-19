@@ -1,11 +1,15 @@
 <div class="row">
-  <div class="col-lg-12">
+<!--   <div class="col-lg-12">
     <a href="<?= base_url('add_venue_address'); ?>" class="btn btn-info w-200" alt="Add new notes"><b>+ </b>Add</a>
-  </div>
+  </div> -->
   <div class="card-body">
+     <div id="message" class="alert" style="display: none;"></div>
     <div class="card">
       <div class="card-header">
-        <h4 class="ven">List of Venue_Address</h4>
+        <h4 class="ven col-sm-1">List of Venue-Address</h4>
+        <div class="col-sm-11">
+          <a href="<?= base_url('add_venue_address'); ?>" class="btn btn-info w-250 float-right" alt="Add new notes"><b>+ </b>Add Venue-Address</a>
+        </div>
       </div>
       <div class="card-body">
         <div class="table-responsive">

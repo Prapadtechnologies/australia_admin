@@ -1,13 +1,19 @@
 <div class="row">
     <div class="col-md-12" style="">
             <form id="category_id" action="<?php echo base_url('edit_sizes_types?id='.$_GET['id']);?>" method="post" class="needs-validation reset" novalidate="" enctype="multipart/form-data">
-            <section class="card-section">
+            <section class="card">
+                <div>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a class="breadcrumb-header" href="<?php echo base_url('/'); ?>">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page"><a href="<?php echo base_url('/SizesTypes'); ?>" class="breadcrumb-header"> SizesTypes</a></li>
+                    </ol>
+                </div>
                 <header class="card-header">
                     <div class="card-actions">
                         <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
                         <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
                     </div>
-                    <h2 class="card-title ven">Edit Sizes</h2>
+                    <h2 class="card-title ven">Edit Sizes-Types</h2>
                 </header>
                 <div class="card-body">
                     <!-- Size Type -->

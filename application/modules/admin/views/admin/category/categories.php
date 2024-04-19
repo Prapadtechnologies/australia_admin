@@ -1,11 +1,15 @@
 <div class="row">
-  <div class="col-lg-12">
-    <a href="<?= base_url('add_categories'); ?>" class="btn btn-info w-200" alt="Add new notes"><b>+ </b>Add</a>
-  </div>
+<!--   <div class="col-lg-12">
+    <a href="<?= base_url('add_categories'); ?>" class="btn btn-info w-200" alt="Add new notes"><b>+ </b>Add Categories</a>
+  </div> -->
   <div class="card-body">
     <div class="card">
+      <div id="message" class="alert" style="display: none;"></div>
       <div class="card-header">
-        <h4 class="ven">List of Categories</h4>
+        <h4 class="ven ">List of Categories</h4>
+        <div class="col-sm-11">
+          <a href="<?= base_url('add_categories'); ?>" class="btn btn-info w-250 float-right" alt="Add new notes"><b>+ </b>Add Categories</a>
+        </div>
       </div>
       <div class="card-body">
         <div class="table-responsive">
@@ -30,11 +34,11 @@
 
 
                      <a href="<?php echo base_url('admin/edit_categories?id=' . $category['id']); ?>" class="mr-2"> <i class="fas fa-pencil-alt"></i> </a>
-                    <a href="#" onclick="confirmDelete(<?php echo $category['id']; ?>)" class="mr-2 text-danger"><i class="far fa-trash-alt"></i></a>
-                  </td>
-                </tr>
-              <?php } ?>
-            <?php } else { ?>
+                     <a href="#" onclick="confirmDelete(<?php echo $category['id']; ?>)" class="mr-2 text-danger"><i class="far fa-trash-alt"></i></a>
+                   </td>
+                 </tr>
+               <?php } ?>
+             <?php } else { ?>
               <tr>
                 <td colspan="5">No data available</td>
               </tr>

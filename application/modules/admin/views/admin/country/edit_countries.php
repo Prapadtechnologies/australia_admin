@@ -1,7 +1,13 @@
 <div class="row">
     <div class="col-md-12" style="">
         <form id="category_id" action="<?php echo base_url('admin/edit_countries?id='.$_GET['id']);?>" method="post" class="needs-validation reset" novalidate="" enctype="multipart/form-data">
-            <section class="card-section">
+            <section class="card">
+                <div>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a class="breadcrumb-header" href="<?php echo base_url('/'); ?>">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page"><a href="<?php echo base_url('/Countries'); ?>" class="breadcrumb-header"> Countries</a></li>
+                    </ol>
+                </div>
                 <header class="card-header">
                     <div class="card-actions">
                         <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>

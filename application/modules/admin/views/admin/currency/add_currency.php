@@ -2,6 +2,12 @@
     <div class="col-md-12" style="">
         <form id="form_site_settings" action="<?php echo base_url('add_currency');?>" method="post" class="needs-validation reset" novalidate="" enctype="multipart/form-data">
             <section class="card">
+                <div>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a class="breadcrumb-header" href="<?php echo base_url('/'); ?>">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page"><a href="<?php echo base_url('/Currency'); ?>" class="breadcrumb-header"> Currency</a></li>
+                    </ol>
+                </div>
                 <header class="card-header">
                     <div class="card-actions">
                         <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
@@ -15,8 +21,8 @@
                         <label class="col-sm-3">Name <span class="required">*</span></label>
                         <div class="col-sm-9">
                             <input type="text" name="name" class="form-control" required="">
+                            <div class="invalid-feedback">Please enter the currency name.</div>
                         </div>
-                        <div class="invalid-feedback">Name?</div>
                         <?php echo form_error('name','<div style="color:red">','</div>');?>
                     </div>
 
@@ -25,30 +31,25 @@
                         <label class="col-sm-3">Code <span class="required">*</span></label>
                         <div class="col-sm-9">
                             <input type="text" name="code" class="form-control" required="">
+                            <div class="invalid-feedback">Please enter the currency code.</div>
                         </div>
-                        <div class="invalid-feedback">Code?</div>
                         <?php echo form_error('code','<div style="color:red">','</div>');?>
                     </div>
-
 
                     <!-- Symbol -->
                     <div class="form-group row">
                         <label class="col-sm-3">Symbol <span class="required">*</span></label>
                         <div class="col-sm-9">
                             <input type="text" name="symbol" class="form-control" required="">
+                            <div class="invalid-feedback">Please enter the currency symbol.</div>
                         </div>
-                        <div class="invalid-feedback">Symbol?</div>
                         <?php echo form_error('symbol','<div style="color:red">','</div>');?>
                     </div>
-
-
-
 
                     <!-- Submit Button -->
                     <div class="row justify-content-end">
                         <div class="col-sm-9">
                             <button class="btn btn-primary">Submit</button>
-                            
                         </div>
                     </div>
 

@@ -1,7 +1,13 @@
 <div class="row">
     <div class="col-md-12" style="">
         <form id="form_site_settings" action="<?php echo base_url('add_venue_address');?>" method="post" class="needs-validation reset" novalidate="" enctype="multipart/form-data">
-            <section class="card">
+        <section class="card">
+                <div>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a class="breadcrumb-header" href="<?php echo base_url('/'); ?>">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page"><a href="<?php echo base_url('/VenueAddress'); ?>" class="breadcrumb-header"> VenueAddress</a></li>
+                    </ol>
+                </div>
                 <header class="card-header">
                     <div class="card-actions">
                         <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
@@ -11,14 +17,13 @@
                 </header>
                 <div class="card-body">
 
-
                     <!-- Name -->
                     <div class="form-group row">
                         <label class="col-sm-3">Name<span class="required">*</span></label>
                         <div class="col-sm-9">
                             <input type="text" name="name" class="form-control" required="">
+                            <div class="invalid-feedback">Please enter the name.</div>
                         </div>
-                        <div class="invalid-feedback">Name?</div>
                         <?php echo form_error('name','<div style="color:red">','</div>');?>
                     </div>
 
@@ -27,8 +32,8 @@
                         <label class="col-sm-3">Address Line One<span class="required">*</span></label>
                         <div class="col-sm-9">
                             <input type="text" name="address_line_one" class="form-control" required="">
+                            <div class="invalid-feedback">Please enter the address line one.</div>
                         </div>
-                        <div class="invalid-feedback">Address Line One?</div>
                         <?php echo form_error('address_line_one','<div style="color:red">','</div>');?>
                     </div>
 
@@ -44,9 +49,9 @@
                     <div class="form-group row">
                         <label class="col-sm-3">Capacity<span class="required">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" name="capacity" class="form-control" required="">
+                            <input type="number" name="capacity" class="form-control" required="">
+                            <div class="invalid-feedback">Please enter the capacity.</div>
                         </div>
-                        <div class="invalid-feedback">Capacity?</div>
                         <?php echo form_error('capacity','<div style="color:red">','</div>');?>
                     </div>
 
@@ -55,8 +60,8 @@
                         <label class="col-sm-3">City<span class="required">*</span></label>
                         <div class="col-sm-9">
                             <input type="text" name="city" class="form-control" required="">
+                            <div class="invalid-feedback">Please enter the city.</div>
                         </div>
-                        <div class="invalid-feedback">City?</div>
                         <?php echo form_error('city','<div style="color:red">','</div>');?>
                     </div>
 
@@ -65,8 +70,8 @@
                         <label class="col-sm-3">Phone<span class="required">*</span></label>
                         <div class="col-sm-9">
                             <input type="text" name="phone" class="form-control" required="" maxlength="10">
+                            <div class="invalid-feedback">Please enter a valid phone number.</div>
                         </div>
-                        <div class="invalid-feedback">Phone?</div>
                         <?php echo form_error('phone','<div style="color:red">','</div>');?>
                     </div>
 
@@ -74,7 +79,7 @@
                     <div class="form-group row">
                         <label class="col-sm-3">State/Province</label>
                         <div class="col-sm-9">
-                            <input type="text" name="state_province" class="form-control">
+                            <input type="text" name="state_province" class="form-control" >
                         </div>
                     </div>
 
@@ -83,8 +88,8 @@
                         <label class="col-sm-3">Country<span class="required">*</span></label>
                         <div class="col-sm-9">
                             <input type="text" name="country" class="form-control" required="">
+                            <div class="invalid-feedback">Please enter the country.</div>
                         </div>
-                        <div class="invalid-feedback">Country?</div>
                         <?php echo form_error('country','<div style="color:red">','</div>');?>
                     </div>
 
@@ -93,10 +98,11 @@
                         <label class="col-sm-3">Postal Code<span class="required">*</span></label>
                         <div class="col-sm-9">
                             <input type="text" name="postal_code" class="form-control" required="">
+                            <div class="invalid-feedback">Please enter the postal code.</div>
                         </div>
-                        <div class="invalid-feedback">Postal Code?</div>
                         <?php echo form_error('postal_code','<div style="color:red">','</div>');?>
                     </div>
+
                     <!-- Is Verified -->
                     <div class="form-group row">
                         <label class="col-sm-3">Is Verified<span class="required">*</span></label>
@@ -105,17 +111,15 @@
                                 <option value="1">Yes</option>
                                 <option value="0">No</option>
                             </select>
+                            <div class="invalid-feedback">Please select whether the venue address is verified or not.</div>
                         </div>
-                        <div class="invalid-feedback">Is Verified?</div>
                         <?php echo form_error('is_verified','<div style="color:red">','</div>');?>
                     </div>
-
 
                     <!-- Submit Button -->
                     <div class="row justify-content-end">
                         <div class="col-sm-9">
                             <button class="btn btn-primary">Submit</button>
-                            
                         </div>
                     </div>
 

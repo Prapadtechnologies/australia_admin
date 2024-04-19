@@ -1,18 +1,22 @@
 <div class="row">
-    <div class="col-lg-12">
+<!--     <div class="col-lg-12">
         <a href="<?= base_url('add_sizes'); ?>" class="btn btn-info w-200" alt="Add new notes"><b>+ </b>Add</a>
-    </div>
+    </div> -->
     <div class="card-body">
         <div class="card">
+            <div id="message" class="alert" style="display: none;"></div>
             <div class="card-header">
                 <h4 class="ven">List of Sizes</h4>
+        <div class="col-sm-11">
+          <a href="<?= base_url('add_sizes'); ?>" class="btn btn-info w-250 float-right" alt="Add new notes"><b>+ </b>Add Sizes</a>
+        </div>
             </div>
             <div class="card-body">
                 <div class="table-responsive">
                     <table class="table table-striped table-hover" id="tableExport" style="width: 100%;">
                         <thead>
                             <tr>
-                                <th>Sizetype</th>
+                                <th>Size Type</th>
                                 <th>Size Name</th>
                                 <th>Actions</th>
                             </tr>

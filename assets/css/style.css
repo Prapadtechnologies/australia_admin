@@ -3331,11 +3331,11 @@ select.form-control:not([size]):not([multiple]) {
 
 .card .card-header .btn {
     margin-top: 1px;
-    padding: 2px 15px
+
 }
 
 .card .card-header .btn:not(.note-btn) {
-    border-radius: 30px
+/*    border-radius: 30px*/
 }
 
 .card .card-header .btn:hover {
@@ -3355,7 +3355,7 @@ select.form-control:not([size]):not([multiple]) {
 .card .card-header h4 {
     font-size: 16px;
     line-height: 28px;
-    padding-right: 10px;
+/*    padding-right: 10px;*/
     margin-bottom: 0
 }
 
@@ -4752,7 +4752,10 @@ a.btn.btn-sm.float-right.order-b {
     font-weight: 700;
     font-size: 18px
 }
-
+.breadcrumb-header{
+    color: #007bff !important;
+    text-decoration: none !important;
+}
 .breadcrumb {
     background-color: #f9f9f9
 }

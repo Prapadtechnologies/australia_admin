@@ -315,32 +315,48 @@ function geocodeLatLng(lat, lng) {
 </script>
 <script>
 function confirmDelete(categoryId) {
-    if (confirm("Are you sure you want to delete ?")) {
-        // User clicked "OK", send AJAX request to delete category
+    if (confirm("Are you sure you want to delete?")) {
         $.ajax({
-            url: "<?php echo base_url('admin/deleteCategory'); ?>",
-            type: "POST",
-            data: { category_id: categoryId },
+            url: '<?php echo base_url('admin/deleteCategory'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {category_id: categoryId},
             success: function(response) {
-                // Reload the page after deletion
-                window.location.reload();
+                if (response.status === 'success') {
+                    $('#message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                    $('#row_' + categoryId).remove();
+                    location.reload();
+                } else {
+                    $('#message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#message').removeClass('alert-success').addClass('alert-danger').text('Failed to delete. Please try again later.').show();
+                console.error(xhr.responseText);
             }
         });
     }
-}
-    
+}   
 </script>
 <script>
 function confirmsubcategoryDelete(subcategoryId) {
     if (confirm("Are you sure you want to delete ?")) {
-        // User clicked "OK", send AJAX request to delete category
         $.ajax({
-            url: "<?php echo base_url('admin/deletesubCategory'); ?>",
-            type: "POST",
-            data: { subcategory_id: subcategoryId },
+            url: '<?php echo base_url('admin/deletesubCategory'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {category_id: subcategoryId},
             success: function(response) {
-                // Reload the page after deletion
-                window.location.reload();
+                if (response.status == 'success') {
+                    $('#message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                    $('#row_' + subcategoryId).remove();
+                    location.reload();
+                } else {
+                    $('#message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                }
+            },
+            error: function() {
+                $('#message').removeClass('alert-success').addClass('alert-danger').text('Failed to delete . Please try again later.').show();
             }
         });
     }
@@ -349,14 +365,22 @@ function confirmsubcategoryDelete(subcategoryId) {
 <script>
 function confirmcolorDelete(colorId) {
     if (confirm("Are you sure you want to delete ?")) {
-        // User clicked "OK", send AJAX request to delete category
         $.ajax({
-            url: "<?php echo base_url('admin/deleteColour'); ?>",
-            type: "POST",
-            data: { category_id: colorId },
+            url: '<?php echo base_url('admin/deleteColour'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {category_id: colorId},
             success: function(response) {
-                // Reload the page after deletion
-                window.location.reload();
+                if (response.status == 'success') {
+                    $('#message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                    $('#row_' + colorId).remove();
+                    location.reload();
+                } else {
+                    $('#message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                }
+            },
+            error: function() {
+                $('#message').removeClass('alert-success').addClass('alert-danger').text('Failed to delete . Please try again later.').show();
             }
         });
     }
@@ -365,14 +389,22 @@ function confirmcolorDelete(colorId) {
 <script>
 function confirmcountryDelete(countryId) {
     if (confirm("Are you sure you want to delete ?")) {
-        // User clicked "OK", send AJAX request to delete category
         $.ajax({
-            url: "<?php echo base_url('admin/deletecountry'); ?>",
-            type: "POST",
-            data: { country_id: countryId },
+            url: '<?php echo base_url('admin/deletecountry'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {category_id: countryId},
             success: function(response) {
-                // Reload the page after deletion
-                window.location.reload();
+                if (response.status == 'success') {
+                    $('#message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                    $('#row_' + countryId).remove();
+                    location.reload();
+                } else {
+                    $('#message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                }
+            },
+            error: function() {
+                $('#message').removeClass('alert-success').addClass('alert-danger').text('Failed to delete . Please try again later.').show();
             }
         });
     }
@@ -381,14 +413,22 @@ function confirmcountryDelete(countryId) {
 <script>
 function confirmcurrencyDelete(currencyId) {
     if (confirm("Are you sure you want to delete ?")) {
-        // User clicked "OK", send AJAX request to delete category
         $.ajax({
-            url: "<?php echo base_url('admin/deletecurrency'); ?>",
-            type: "POST",
-            data: { currency_id: currencyId },
+            url: '<?php echo base_url('admin/deletecurrency'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {category_id: currencyId},
             success: function(response) {
-                // Reload the page after deletion
-                window.location.reload();
+                if (response.status == 'success') {
+                    $('#message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                    $('#row_' + currencyId).remove();
+                    location.reload();
+                } else {
+                    $('#message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                }
+            },
+            error: function() {
+                $('#message').removeClass('alert-success').addClass('alert-danger').text('Failed to delete . Please try again later.').show();
             }
         });
     }
@@ -397,14 +437,22 @@ function confirmcurrencyDelete(currencyId) {
 <script>
 function confirmsizeDelete(sizeId) {
     if (confirm("Are you sure you want to delete ?")) {
-        // User clicked "OK", send AJAX request to delete category
         $.ajax({
-            url: "<?php echo base_url('admin/deletesize'); ?>",
-            type: "POST",
-            data: { size_id: sizeId },
+            url: '<?php echo base_url('admin/deletesize'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {category_id: sizeId},
             success: function(response) {
-                // Reload the page after deletion
-                window.location.reload();
+                if (response.status == 'success') {
+                    $('#message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                    $('#row_' + sizeId).remove();
+                    location.reload();
+                } else {
+                    $('#message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                }
+            },
+            error: function() {
+                $('#message').removeClass('alert-success').addClass('alert-danger').text('Failed to delete . Please try again later.').show();
             }
         });
     }
@@ -413,48 +461,53 @@ function confirmsizeDelete(sizeId) {
 <script>
 function confirmsizetypeDelete(sizetypeId) {
     if (confirm("Are you sure you want to delete ?")) {
-        // User clicked "OK", send AJAX request to delete category
         $.ajax({
-            url: "<?php echo base_url('admin/deletesize_types'); ?>",
-            type: "POST",
-            data: { size_types_id: sizetypeId },
+            url: '<?php echo base_url('admin/deletesize_types'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {category_id: sizetypeId},
             success: function(response) {
-                // Reload the page after deletion
-                window.location.reload();
+                if (response.status == 'success') {
+                    $('#message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                    $('#row_' + sizetypeId).remove();
+                    location.reload();
+                } else {
+                    $('#message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                }
+            },
+            error: function() {
+                $('#message').removeClass('alert-success').addClass('alert-danger').text('Failed to delete. Please try again later.').show();
             }
         });
     }
 }
+
+
 </script>
 <script>
-function confirmvenueDelete(venueId) {
+function confirmvenueDelete(id) {
     if (confirm("Are you sure you want to delete ?")) {
-        // User clicked "OK", send AJAX request to delete category
         $.ajax({
-            url: "<?php echo base_url('admin/deletevenue_address'); ?>",
-            type: "POST",
-            data: { category_id: venueId },
+            url: '<?php echo base_url('admin/deletevenue_address'); ?>',
+            type: 'POST',
+            dataType: 'json',
+            data: {category_id: id},
             success: function(response) {
-                // Reload the page after deletion
-                window.location.reload();
+                if (response.status == 'success') {
+                    $('#message').removeClass('alert-danger').addClass('alert-success').text(response.message).show();
+                    $('#row_' + id).remove();
+                    location.reload();
+                } else {
+                    $('#message').removeClass('alert-success').addClass('alert-danger').text(response.message).show();
+                }
+            },
+            error: function() {
+                $('#message').removeClass('alert-success').addClass('alert-danger').text('Failed to delete. Please try again later.').show();
             }
         });
     }
 }
+
 </script>
-<script>
-function confirmuseradminDelete(userId) {
-    if (confirm("Are you sure you want to delete ?")) {
-        // User clicked "OK", send AJAX request to delete category
-        $.ajax({
-            url: "<?php echo base_url('admin/deleteusers_admin'); ?>",
-            type: "POST",
-            data: { category_id: userId },
-            success: function(response) {
-                // Reload the page after deletion
-                window.location.reload();
-            }
-        });
-    }
-}
-</script>
+
+

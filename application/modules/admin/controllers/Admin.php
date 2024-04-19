@@ -505,15 +505,14 @@ class Admin extends MY_Controller
 
             $this->load->model('Categories_model');
             if ($this->Categories_model->deleteCategory($category_id)) {
-                echo json_encode(['status' => 'success', 'message' => 'Category deleted successfully']);
+                echo json_encode(['status' => 'success', 'message' => 'Deleted successfully']);
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to delete category']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to delete']);
             }
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
         }
     }
-
     /**
      * subcategories
      */
@@ -609,27 +608,25 @@ class Admin extends MY_Controller
         $data['type'] = 'category';
         $this->load->view($this->template, $data);
     }
-
     public function deletesubCategory()
     {
         if ($this->input->is_ajax_request()) {
-            $subcategory_id = $this->input->post('subcategory_id');
-            if (!$subcategory_id) {
+            $category_id = $this->input->post('category_id');
+            if (!$category_id) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid category ID']);
                 return;
             }
 
             $this->load->model('SubCategories_model');
-            if ($this->SubCategories_model->deletesubCategory($subcategory_id)) {
-                echo json_encode(['status' => 'success', 'message' => 'Category deleted successfully']);
+            if ($this->SubCategories_model->deletesubCategory($category_id)) {
+                echo json_encode(['status' => 'success', 'message' => 'Deleted successfully']);
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to delete category']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to delete']);
             }
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
         }
     }
-
     /**
      * colours
      */
@@ -647,41 +644,41 @@ class Admin extends MY_Controller
 
     public function add_colours()
     {
-    if (!$this->ion_auth_acl->has_permission('admin')) {
-        redirect('error_404');
-    }
+        if (!$this->ion_auth_acl->has_permission('admin')) {
+            redirect('error_404');
+        }
 
-    if ($this->input->post()) {
-        $this->form_validation->set_rules('colorname', 'Color Name', 'trim|required');
-        $this->form_validation->set_rules('colorcode', 'Color Code', 'trim|required');
+        if ($this->input->post()) {
+            $this->form_validation->set_rules('colorname', 'Color Name', 'trim|required');
+            $this->form_validation->set_rules('colorcode', 'Color Code', 'trim|required');
 
-        if ($this->form_validation->run() == false) {
+            if ($this->form_validation->run() == false) {
+                $data['title'] = 'Add Colour';
+                $data['content'] = 'admin/admin/colour/add_colours';
+                $this->load->view($this->template, $data);
+            } else {
+                $input_data = [
+                    'colour_name' => $this->input->post('colorname'),
+                    'colour_code' => $this->input->post('colorcode'),
+                ];
+
+                $this->load->model('Colours_model');
+                $res = $this->Colours_model->save_color_info($input_data);
+
+                if ($res) {
+                    $this->session->set_flashdata('success_message', 'Colour added successfully');
+                    redirect('Colours'); // Corrected redirect URL
+                } else {
+                    $this->session->set_flashdata('error_message', 'Failed to add colour');
+                    redirect('add_colours');
+                }
+            }
+        } else {
+            // If form is not submitted, load the add colours view
             $data['title'] = 'Add Colour';
             $data['content'] = 'admin/admin/colour/add_colours';
             $this->load->view($this->template, $data);
-        } else {
-            $input_data = [
-                'colour_name' => $this->input->post('colorname'),
-                'colour_code' => $this->input->post('colorcode'),
-            ];
-
-            $this->load->model('Colours_model');
-            $res = $this->Colours_model->save_color_info($input_data);
-
-            if ($res) {
-                $this->session->set_flashdata('success_message', 'Colour added successfully');
-                redirect('Colours'); // Corrected redirect URL
-            } else {
-                $this->session->set_flashdata('error_message', 'Failed to add colour');
-                redirect('add_colours');
-            }
         }
-    } else {
-        // If form is not submitted, load the add colours view
-        $data['title'] = 'Add Colour';
-        $data['content'] = 'admin/admin/colour/add_colours';
-        $this->load->view($this->template, $data);
-    }
     }
 
     public function edit_colours()
@@ -701,7 +698,7 @@ class Admin extends MY_Controller
         if ($this->input->post()) {
             $update_data = [
                 'colour_name' => $this->input->post('colorname'),
-                'colour_code' => $this->input->post('colorcode')
+                'colour_code' => $this->input->post('colorcode'),
             ];
             $this->load->model('Colours_model');
             if ($this->Colours_model->update_colour($category_id, $update_data)) {
@@ -717,7 +714,6 @@ class Admin extends MY_Controller
         $data['content'] = 'admin/admin/colour/edit_colours';
         $this->load->view($this->template, $data);
     }
-
     public function deleteColour()
     {
         if ($this->input->is_ajax_request()) {
@@ -729,9 +725,9 @@ class Admin extends MY_Controller
 
             $this->load->model('Colours_model');
             if ($this->Colours_model->deleteColour($category_id)) {
-                echo json_encode(['status' => 'success', 'message' => 'Category deleted successfully']);
+                echo json_encode(['status' => 'success', 'message' => 'Deleted successfully']);
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to delete category']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to delete']);
             }
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
@@ -830,23 +826,22 @@ class Admin extends MY_Controller
     public function deletecountry()
     {
         if ($this->input->is_ajax_request()) {
-            $country_id = $this->input->post('country_id');
-            if (!$country_id) {
+            $category_id = $this->input->post('category_id');
+            if (!$category_id) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid category ID']);
                 return;
             }
 
             $this->load->model('Countries_model');
-            if ($this->Countries_model->deletecountry($country_id)) {
-                echo json_encode(['status' => 'success', 'message' => 'Category deleted successfully']);
+            if ($this->Countries_model->deletecountry($category_id)) {
+                echo json_encode(['status' => 'success', 'message' => 'Deleted successfully']);
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to delete category']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to delete']);
             }
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
         }
     }
-
     /**
      * currancy
      */
@@ -952,37 +947,36 @@ class Admin extends MY_Controller
     public function deletecurrency()
     {
         if ($this->input->is_ajax_request()) {
-            $currency_id = $this->input->post('currency_id');
-            if (!$currency_id) {
+            $category_id = $this->input->post('category_id');
+            if (!$category_id) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid category ID']);
                 return;
             }
 
             $this->load->model('Currency_model');
-            if ($this->Currency_model->deletecurrency($currency_id)) {
-                echo json_encode(['status' => 'success', 'message' => 'Category deleted successfully']);
+            if ($this->Currency_model->deletecurrency($category_id)) {
+                echo json_encode(['status' => 'success', 'message' => 'Deleted successfully']);
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to delete category']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to delete']);
             }
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
         }
     }
-
     /**
      * Sizes
      */
-public function sizes()
+    public function sizes()
     {
         if (!$this->ion_auth_acl->has_permission('admin')) {
             redirect('error_404');
         }
-        
+
         $this->load->model('Size_model');
         $data['sizes'] = $this->Size_model->get_sizes_with_sizestypes();
         $data['title'] = 'Sizes';
         $data['content'] = 'admin/admin/size/sizes';
-        
+
         // Load your view file with the data
         $this->load->view($this->template, $data);
     }
@@ -1020,7 +1014,9 @@ public function sizes()
                 }
             }
         } else {
+            $this->load->model('Sizes_types_model');
             // If form is not submitted, load the add countries view
+            $data['sizestypes'] = $this->Sizes_types_model->get_sizes_types();
             $data['title'] = 'Add Sizes';
             $data['content'] = 'admin/admin/size/add_sizes';
             $this->load->view($this->template, $data);
@@ -1074,17 +1070,17 @@ public function sizes()
     public function deletesize()
     {
         if ($this->input->is_ajax_request()) {
-            $size_id = $this->input->post('size_id');
-            if (!$size_id) {
+            $category_id = $this->input->post('category_id');
+            if (!$category_id) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid category ID']);
                 return;
             }
 
             $this->load->model('Size_model');
-            if ($this->Size_model->deletesize($size_id)) {
-                echo json_encode(['status' => 'success', 'message' => 'Category deleted successfully']);
+            if ($this->Size_model->deletesize($category_id)) {
+                echo json_encode(['status' => 'success', 'message' => 'Deleted successfully']);
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to delete category']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to delete']);
             }
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
@@ -1189,17 +1185,17 @@ public function sizes()
     public function deletesize_types()
     {
         if ($this->input->is_ajax_request()) {
-            $size_types_id = $this->input->post('size_types_id');
-            if (!$size_types_id) {
+            $category_id = $this->input->post('category_id');
+            if (!$category_id) {
                 echo json_encode(['status' => 'error', 'message' => 'Invalid category ID']);
                 return;
             }
 
             $this->load->model('Sizes_types_model');
-            if ($this->Sizes_types_model->deletesize_types($size_types_id)) {
-                echo json_encode(['status' => 'success', 'message' => 'Category deleted successfully']);
+            if ($this->Sizes_types_model->deletesize_types($category_id)) {
+                echo json_encode(['status' => 'success', 'message' => 'Deleted successfully']);
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to delete category']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to delete']);
             }
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
@@ -1401,30 +1397,79 @@ public function sizes()
         $data['content'] = 'admin/admin/venue/venue_address';
         $this->load->view($this->template, $data);
     }
-    public function add_venue_address() 
+    public function add_venue_address()
     {
-    if (!$this->ion_auth_acl->has_permission('admin')) {
-        redirect('error_404');
-    }
+        if (!$this->ion_auth_acl->has_permission('admin')) {
+            redirect('error_404');
+        }
 
-    if ($this->input->post()) {
-        // Set form validation rules
-        $this->form_validation->set_rules('name', 'Name', 'trim|required');
-        $this->form_validation->set_rules('address_line_one', 'Address Line One', 'trim|required');
-        $this->form_validation->set_rules('capacity', 'Capacity', 'trim|required|numeric');
-        $this->form_validation->set_rules('city', 'City', 'trim|required');
-        $this->form_validation->set_rules('phone', 'Phone', 'trim|required');
-        $this->form_validation->set_rules('country', 'Country', 'trim|required');
-        $this->form_validation->set_rules('postal_code', 'Postal Code', 'trim|required');
-        $this->form_validation->set_rules('is_verified', 'Is Verified', 'trim|required');
+        if ($this->input->post()) {
+            // Set form validation rules
+            $this->form_validation->set_rules('name', 'Name', 'trim|required');
+            $this->form_validation->set_rules('address_line_one', 'Address Line One', 'trim|required');
+            $this->form_validation->set_rules('capacity', 'Capacity', 'trim|required|numeric');
+            $this->form_validation->set_rules('city', 'City', 'trim|required');
+            $this->form_validation->set_rules('phone', 'Phone', 'trim|required');
+            $this->form_validation->set_rules('country', 'Country', 'trim|required');
+            $this->form_validation->set_rules('postal_code', 'Postal Code', 'trim|required');
+            $this->form_validation->set_rules('is_verified', 'Is Verified', 'trim|required');
 
-        // Validate the form
-        if ($this->form_validation->run() == false) {
+            // Validate the form
+            if ($this->form_validation->run() == false) {
+                $data['title'] = 'Add VenueAddress';
+                $data['content'] = 'admin/admin/venue/add_venue_address';
+                $this->load->view($this->template, $data);
+            } else {
+                $data = [
+                    'name' => $this->input->post('name'),
+                    'addressLineOne' => $this->input->post('address_line_one'),
+                    'addressLineTwo' => $this->input->post('address_line_two'),
+                    'capacity' => $this->input->post('capacity'),
+                    'city' => $this->input->post('city'),
+                    'phone' => $this->input->post('phone'),
+                    'stateProvince' => $this->input->post('state_province'),
+                    'country' => $this->input->post('country'),
+                    'postalCode' => $this->input->post('postal_code'),
+                    'isVerified' => $this->input->post('is_verified'),
+                ];
+                $this->load->model('VenueAddress_model');
+                $res = $this->VenueAddress_model->save_venue_address_info($data);
+                if ($res) {
+                    $this->session->set_flashdata('success_message', 'VenueAddress added successfully');
+                    redirect('VenueAddress');
+                } else {
+                    $this->session->set_flashdata('error_message', 'Failed to add VenueAddress');
+                    redirect('add_venue_address');
+                }
+            }
+        } else {
+            // If form is not submitted, load the add venue address view
             $data['title'] = 'Add VenueAddress';
             $data['content'] = 'admin/admin/venue/add_venue_address';
             $this->load->view($this->template, $data);
-        } else {
-            $data = [
+        }
+    }
+    public function edit_venue_address()
+    {
+        if (!$this->ion_auth_acl->has_permission('admin')) {
+            redirect('VenueAddress');
+        }
+
+        $category_id = $this->input->get('id');
+
+        if (!$category_id) {
+            redirect('VenueAddress');
+        }
+
+        $this->load->model('VenueAddress_model');
+        $data['category'] = $this->VenueAddress_model->get_venue_address_by_id($category_id);
+
+        if (!$data['category']) {
+            redirect('VenueAddress');
+        }
+
+        if ($this->input->post()) {
+            $update_data = [
                 'name' => $this->input->post('name'),
                 'addressLineOne' => $this->input->post('address_line_one'),
                 'addressLineTwo' => $this->input->post('address_line_two'),
@@ -1437,71 +1482,22 @@ public function sizes()
                 'isVerified' => $this->input->post('is_verified'),
             ];
             $this->load->model('VenueAddress_model');
-            $res = $this->VenueAddress_model->save_venue_address_info($data);
-            if ($res) {
-                $this->session->set_flashdata('success_message', 'VenueAddress added successfully');
-                redirect('VenueAddress'); 
+            $update_result = $this->VenueAddress_model->update_venue_address($category_id, $update_data);
+
+            if ($update_result) {
+                $this->session->set_flashdata('success_message', 'VenueAddress updated successfully');
             } else {
-                $this->session->set_flashdata('error_message', 'Failed to add VenueAddress');
-                redirect('add_venue_address'); 
+                $this->session->set_flashdata('error_message', 'Failed to update VenueAddress');
             }
+
+            redirect('VenueAddress'); // Redirect to the VenueAddress controller's index method
         }
-    } else {
-        // If form is not submitted, load the add venue address view
-        $data['title'] = 'Add VenueAddress';
-        $data['content'] = 'admin/admin/venue/add_venue_address';
+
+        // Load the view for editing subcategories
+        $data['title'] = 'Edit VenueAddress';
+        $data['content'] = 'admin/admin/venue/edit_venue_address';
+        // Load the view passing the data
         $this->load->view($this->template, $data);
-    }
-    }
-    public function edit_venue_address()
-    {
-    if (!$this->ion_auth_acl->has_permission('admin')) {
-        redirect('VenueAddress');
-    }
-
-    $category_id = $this->input->get('id');
-
-    if (!$category_id) {
-        redirect('VenueAddress');
-    }
-
-    $this->load->model('VenueAddress_model');
-    $data['category'] = $this->VenueAddress_model->get_venue_address_by_id($category_id);
-
-    if (!$data['category']) {
-        redirect('VenueAddress');
-    }
-
-    if ($this->input->post()) {
-        $update_data = [
-                'name' => $this->input->post('name'),
-                'addressLineOne' => $this->input->post('address_line_one'),
-                'addressLineTwo' => $this->input->post('address_line_two'),
-                'capacity' => $this->input->post('capacity'),
-                'city' => $this->input->post('city'),
-                'phone' => $this->input->post('phone'),
-                'stateProvince' => $this->input->post('state_province'),
-                'country' => $this->input->post('country'),
-                'postalCode' => $this->input->post('postal_code'),
-                'isVerified' => $this->input->post('is_verified'),
-        ];
-        $this->load->model('VenueAddress_model');
-        $update_result = $this->VenueAddress_model->update_venue_address($category_id, $update_data);
-
-        if ($update_result) {
-            $this->session->set_flashdata('success_message', 'VenueAddress updated successfully');
-        } else {
-            $this->session->set_flashdata('error_message', 'Failed to update VenueAddress');
-        }
-
-        redirect('VenueAddress'); // Redirect to the VenueAddress controller's index method
-    }
-
-    // Load the view for editing subcategories
-    $data['title'] = 'Edit VenueAddress';
-    $data['content'] = 'admin/admin/venue/edit_venue_address';
-    // Load the view passing the data
-    $this->load->view($this->template, $data);
     }
     public function deletevenue_address()
     {
@@ -1514,14 +1510,15 @@ public function sizes()
 
             $this->load->model('VenueAddress_model');
             if ($this->VenueAddress_model->deletevenue_address($category_id)) {
-                echo json_encode(['status' => 'success', 'message' => 'Category deleted successfully']);
+                echo json_encode(['status' => 'success', 'message' => 'Deleted successfully']);
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'Failed to delete category']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to delete']);
             }
         } else {
             echo json_encode(['status' => 'error', 'message' => 'Invalid request']);
         }
     }
+
     /**
      * Sliders Management
      *
@@ -1974,4 +1971,3 @@ public function sizes()
         echo "string";
     }
 }
-

@@ -2,12 +2,18 @@
     <div class="col-md-12" style="">
         <form id="form_site_settings" action="<?php echo base_url('add_sizes_types');?>" method="post" class="needs-validation reset" novalidate="" enctype="multipart/form-data">
             <section class="card">
+                <div>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a class="breadcrumb-header" href="<?php echo base_url('/'); ?>">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page"><a href="<?php echo base_url('/SizesTypes'); ?>" class="breadcrumb-header"> SizesTypes</a></li>
+                    </ol>
+                </div>
                 <header class="card-header">
                     <div class="card-actions">
                         <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
                         <a href="#" class="card-action card-action-dismiss" data-card-dismiss=""></a>
                     </div>
-                    <h2 class="card-title ven">Add Sizes</h2>
+                    <h2 class="card-title ven">Add Sizes-Types</h2>
                 </header>
                 <div class="card-body">
                     <!-- Size Type -->
@@ -15,8 +21,8 @@
                         <label class="col-sm-3">Size Type<span class="required">*</span></label>
                         <div class="col-sm-9">
                             <input type="text" name="sizetype" class="form-control" required="">
+                            <div class="invalid-feedback">Please enter the size type.</div>
                         </div>
-                        <div class="invalid-feedback">Size Type?</div>
                         <?php echo form_error('name','<div style="color:red">','</div>');?>
                     </div>
 
@@ -24,7 +30,6 @@
                     <div class="row justify-content-end">
                         <div class="col-sm-9">
                             <button class="btn btn-primary">Submit</button>
-                            
                         </div>
                     </div>
 

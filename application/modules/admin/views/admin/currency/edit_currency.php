@@ -1,7 +1,13 @@
 <div class="row">
     <div class="col-12">
         <form id="category_id" action="<?php echo base_url('edit_currency?id='.$_GET['id']);?>" method="post" class="needs-validation reset" novalidate="" enctype="multipart/form-data">           
-            <section class="card-section" >
+            <section class="card" >
+                <div>
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a class="breadcrumb-header" href="<?php echo base_url('/'); ?>">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page"><a href="<?php echo base_url('/Currency'); ?>" class="breadcrumb-header"> Currency</a></li>
+                    </ol>
+                </div>
                 <header class="card-header">
                     <div class="card-actions">
                         <a href="#" class="card-action card-action-toggle" data-card-toggle=""></a>
@@ -14,7 +20,7 @@
                     <div class="form-group row">
                         <label class="col-sm-3">Name <span class="required">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" id="name" name="name" class="form-control" required="" value="<?php echo $category['name']; ?>"> 
+                            <input type="text" id="name" name="name" class="form-control"  value="<?php echo $category['name']; ?>"> 
                         </div>
                         <div class="invalid-feedback">Name?</div>
                         <?php echo form_error('name','<div style="color:red">','</div>');?>
@@ -24,7 +30,7 @@
                     <div class="form-group row">
                         <label class="col-sm-3">Code <span class="required">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" id="code" name="code" class="form-control" required="" value="<?php echo $category['code']; ?>">
+                            <input type="text" id="code" name="code" class="form-control"  value="<?php echo $category['code']; ?>">
                         </div>
                         <div class="invalid-feedback">Code?</div>
                         <?php echo form_error('code','<div style="color:red">','</div>');?>
@@ -35,7 +41,7 @@
                     <div class="form-group row">
                         <label class="col-sm-3">Symbol <span class="required">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" id="symbol" name="symbol" class="form-control" required="" value="<?php echo $category['symbol']; ?>">
+                            <input type="text" id="symbol" name="symbol" class="form-control" value="<?php echo $category['symbol']; ?>">
                         </div>
                         <div class="invalid-feedback">Symbol?</div>
                         <?php echo form_error('symbol','<div style="color:red">','</div>');?>

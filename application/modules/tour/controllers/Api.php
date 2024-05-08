@@ -81,8 +81,8 @@ class Api extends MY_REST_Controller
         if ($this->form_validation->run() == false) {
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
         } else {*/
-            $start_date = date('Y-m-d H:i:s', strtotime($_POST['start_date']));
-            $end_date = date('Y-m-d H:i:s', strtotime($_POST['end_date']));
+            $start_date = ($_POST['start_date'] != '')? date('Y-m-d H:i:s', strtotime($_POST['start_date'])) : null;
+            $end_date = ($_POST['end_date'] != '')?  date('Y-m-d H:i:s', strtotime($_POST['end_date'])) : null;
 
             $raw_data=[
                 "user_id"=>$token_data->id,

@@ -58,7 +58,7 @@ class Api extends MY_REST_Controller
         $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $stock_type=$this->input->get('stock_type');
         $stock_id=$this->input->get('stock_id');
-        $merch_ids='';
+        $merch_ids=[];
         $data=[];
         if($stock_type != '' && $stock_id != ''){
             $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>$stock_type,'stock_id'=>$stock_id])->result_array();
@@ -277,6 +277,138 @@ class Api extends MY_REST_Controller
         }
          $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
         // }
+    }
+    public function merch_counts_get()
+    {
+        $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $show_id=$this->input->get('show_id');
+        $tour_id=$this->input->get('tour_id');
+        $merch_ids=[];
+        $data=[];
+        
+        $trailer_ids=$this->db->select('id')->get_where('trailer',['tour_id'=>$tour_id])->row_array();
+
+        if(count($trailer_ids) > 0){
+            $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>'trailer','stock_id'=>$trailer_ids['id']])->result_array();
+        }
+
+        if(count($merch_ids) > 0){
+            $this->db->select('m.*,s.name,c.colour_name');
+            $this->db->join('sub_categories as s','s.id = m.product_type');
+            $this->db->join('colours as c','c.id = m.colour');
+            $this->db->order_by('m.updated_at','desc');
+            //$this->db->where('m.user_id',$token_data->id);
+            $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
+            $merch = $this->db->get('merch as m')->result_array();
+        }else{
+            $merch=[];
+        }
+        
+        foreach ($merch as $mer) {
+            $child_data=$this->db->select('m.*,s.size_name')->join('sizes as s','s.id = m.size')->get_where('merch_child as m',['m.merch_id'=>$mer['id']])->result_array();
+            $child_list_data=[];
+            $total_quantity_count=0;
+            $l_trailer_inbound=$l_trailer_onhand=$l_total=$l_avg_cost=$sizes_list_api=$l_qty_id=$l_in_stock=$l_adds1=$l_adds2=$l_adds3=$l_comps=$l_out_stock=[];
+            foreach ($child_data as $qty_child) {
+                $total_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id']];
+                $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer','stock_id'=>$tour_id];
+                $total_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$total_where)->row_array();
+                //$trailer_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
+                $trailer_onhand=$this->db->select('id as qty_id,quantity as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
+
+                //echo $this->db->last_query();die;
+                //print_r($trailer_onhand);die;
+                $total_onhand_total=($total_onhand['total_quantity'] != '')? $total_onhand['total_quantity'] : 0;
+                $trailer_onhand_total=($trailer_onhand['total_quantity'] != '')? $trailer_onhand['total_quantity'] : 0;
+                $qty_id=($trailer_onhand['qty_id'] != '')? $trailer_onhand['qty_id'] : 0;
+                $d_in_stock=$d_adds=$d_adds1=$d_adds2=$d_adds3=$d_comps=$d_out_stock=0;
+                if($qty_id > 0){
+                    $check_where=['tour_id'=>$tour_id,'show_id'=>show_id,'qty_id'=>$qty_id];
+                    $getdata=$this->db->get_where('merch_counts',$check_where)->row();
+                    $d_in_stock=$getdata->in_stock;
+                    $d_adds1=$getdata->adds1;
+                    $d_adds2=$getdata->adds2;
+                    $d_adds3=$getdata->adds3;
+                    $d_adds=$d_adds1+$d_adds2+$d_adds3;
+                    $d_comps=$getdata->comps;
+                    $d_out_stock=$getdata->out_stock;
+                }
+                $qty_total=$total_onhand_total;
+                $qty_child['ordered']=0;
+                $qty_child['trailer_inbound']=0;
+                $qty_child['trailer_onhand']=$trailer_onhand_total;
+                $qty_child['qty_ids']=$qty_id;
+                $qty_child['global']=$qty_total;                
+                $child_list_data[]=$qty_child;
+                $total_quantity_count=$total_quantity_count+$qty_total;
+
+                $l_trailer_onhand[]=$trailer_onhand_total;
+                $l_total[]=$qty_total;
+                $l_avg_cost[]=$qty_child['cost'];
+                $sizes_list_api[]=$qty_child['size_name'];
+                $l_qty_id[]=$qty_id;
+                $l_in_stock[]=$d_in_stock;
+                $l_adds[]=$d_adds;
+                $l_adds1[]=$d_adds1;
+                $l_adds2[]=$d_adds2;
+                $l_adds3[]=$d_adds3;
+                $l_comps[]=$d_comps;
+                $l_out_stock[]=$d_out_stock;
+            }
+
+            $mer['image1']=base_url('uploads/merch_image/merch_1_'.$mer['id'].'.png');
+            $mer['image2']=base_url('uploads/merch_image/merch_2_'.$mer['id'].'.png');
+            
+            $mer['quantity_total']=$total_quantity_count;
+            $mer['global']   = ['title'=>'Global','data'=>$l_total];
+            $mer['trailer']  = [['title'=>'TRLR Stock','data'=>$l_trailer_onhand],['title'=>'Price','data'=>$l_avg_cost]];
+            $mer['in_stock']  = [['title'=>'Incount','data'=>$l_in_stock],['title'=>'adds','data'=>$l_adds],['title'=>'adds1','data'=>$l_adds1],['title'=>'adds2','data'=>$l_adds2],['title'=>'adds3','data'=>$l_adds3]];
+            $mer['out_stock']  = [['title'=>'Comps','data'=>$l_comps],['title'=>'Out','data'=>$l_out_stock]];
+            
+            $mer['graph']=[
+                'min_limit'=>0,//min($l_total),
+                'max_limit'=>500,//max($l_total),
+                'Y_axis'=>$sizes_list_api,
+                'graph_data'=>$l_total
+            ];
+            $mer['child_list']=$child_list_data;
+            $data['merch_list'][]=$mer;
+        }  
+        $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+    }
+    
+    public function merch_count_create_post()
+    {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        //for($i=0; $i < count($_POST); $i++){
+            $qty_data=$_POST;
+            $raw_data=[
+                // "merch_id"=>$qty_data['merch_id'],
+                // "merch_child_id"=>$qty_data['merch_child_id'],
+                "tour_id"=>$qty_data['tour_id'],
+                "show_id"=>$qty_data['show_id'],
+                "qty_id"=>$qty_data['qty_id'],
+                "in_stock"=>$qty_data['in_stock'],
+                "adds1"=>$qty_data['adds1'],
+                "adds2"=>$qty_data['adds2'],
+                "adds3"=>$qty_data['adds3'],
+                "comps"=>$qty_data['comps'],
+                "out_stock"=>$qty_data['out_stock']
+            ];
+            $check_where=['tour_id'=>$qty_data['tour_id'],'show_id'=>$qty_data['show_id'],'qty_id'=>$qty_data['qty_id']];
+            $getdata=$this->db->get_where('merch_counts',$check_where)->row();
+            if($getdata){
+                $raw_data["updated_at"]=date('Y-m-d H:i:s');
+                $raw_data["updated_by"]=$token_data->id;
+                $this->db->where($check_where)->update('merch_counts',$raw_data);
+            }else{
+                $raw_data["created_at"]=date('Y-m-d H:i:s');
+                $raw_data["created_by"]=$token_data->id;
+                $this->db->insert('merch_counts',$raw_data);
+            }   
+        //}
+        $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
     }
 }
 

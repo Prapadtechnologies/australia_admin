@@ -287,12 +287,16 @@ class Api extends MY_REST_Controller
         $data=[];
         
         $trailer_ids=$this->db->select('id')->get_where('trailer',['tour_id'=>$tour_id])->row_array();
-
-        if(count($trailer_ids) > 0){
+        //echo $this->db->last_query();
+//print_r($trailer_ids);die;
+        if($trailer_ids != '' && count($trailer_ids) > 0){
             $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>'trailer','stock_id'=>$trailer_ids['id']])->result_array();
+            //$merch_ids=array_unique($merch_ids);
+            //echo $this->db->last_query();die;
+            //print_r($merch_ids);die;
         }
 
-        if(count($merch_ids) > 0){
+        if($merch_ids != '' && count($merch_ids) > 0){
             $this->db->select('m.*,s.name,c.colour_name');
             $this->db->join('sub_categories as s','s.id = m.product_type');
             $this->db->join('colours as c','c.id = m.colour');
@@ -300,6 +304,7 @@ class Api extends MY_REST_Controller
             //$this->db->where('m.user_id',$token_data->id);
             $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
             $merch = $this->db->get('merch as m')->result_array();
+            //print_r($merch);
         }else{
             $merch=[];
         }
@@ -310,28 +315,36 @@ class Api extends MY_REST_Controller
             $total_quantity_count=0;
             $l_trailer_inbound=$l_trailer_onhand=$l_total=$l_avg_cost=$sizes_list_api=$l_qty_id=$l_in_stock=$l_adds1=$l_adds2=$l_adds3=$l_comps=$l_out_stock=[];
             foreach ($child_data as $qty_child) {
+                $qty_sale_cost=$qty_child['sale_price'];
                 $total_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id']];
                 $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer','stock_id'=>$tour_id];
                 $total_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$total_where)->row_array();
                 //$trailer_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
-                $trailer_onhand=$this->db->select('id as qty_id,quantity as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
+                $trailer_onhand=$this->db->select('id as qty_id,cost as qty_sale_cost,quantity as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
 
                 //echo $this->db->last_query();die;
                 //print_r($trailer_onhand);die;
-                $total_onhand_total=($total_onhand['total_quantity'] != '')? $total_onhand['total_quantity'] : 0;
-                $trailer_onhand_total=($trailer_onhand['total_quantity'] != '')? $trailer_onhand['total_quantity'] : 0;
-                $qty_id=($trailer_onhand['qty_id'] != '')? $trailer_onhand['qty_id'] : 0;
+                $total_onhand_total=$trailer_onhand_total=$qty_id=0;
+                if($trailer_onhand != ''){
+                    $qty_sale_cost=$trailer_onhand['qty_sale_cost'];
+                    $total_onhand_total=($total_onhand['total_quantity'] != '')? $total_onhand['total_quantity'] : 0;
+                    $trailer_onhand_total=($trailer_onhand['total_quantity'] != '')? $trailer_onhand['total_quantity'] : 0;
+                    $qty_id=($trailer_onhand['qty_id'] != '')? $trailer_onhand['qty_id'] : 0;
+                }
                 $d_in_stock=$d_adds=$d_adds1=$d_adds2=$d_adds3=$d_comps=$d_out_stock=0;
                 if($qty_id > 0){
-                    $check_where=['tour_id'=>$tour_id,'show_id'=>show_id,'qty_id'=>$qty_id];
+                    $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'qty_id'=>$qty_id];
                     $getdata=$this->db->get_where('merch_counts',$check_where)->row();
-                    $d_in_stock=$getdata->in_stock;
-                    $d_adds1=$getdata->adds1;
-                    $d_adds2=$getdata->adds2;
-                    $d_adds3=$getdata->adds3;
+                    if($getdata != ''){
+                        $qty_sale_cost=$getdata->sale_price;
+                    }
+                    $d_in_stock=$getdata->in_stock ?? 0;
+                    $d_adds1=$getdata->adds1 ?? 0;
+                    $d_adds2=$getdata->adds2 ?? 0;
+                    $d_adds3=$getdata->adds3 ?? 0;
                     $d_adds=$d_adds1+$d_adds2+$d_adds3;
-                    $d_comps=$getdata->comps;
-                    $d_out_stock=$getdata->out_stock;
+                    $d_comps=$getdata->comps ?? 0;
+                    $d_out_stock=$getdata->out_stock ?? 0;
                 }
                 $qty_total=$total_onhand_total;
                 $qty_child['ordered']=0;
@@ -344,7 +357,7 @@ class Api extends MY_REST_Controller
 
                 $l_trailer_onhand[]=$trailer_onhand_total;
                 $l_total[]=$qty_total;
-                $l_avg_cost[]=$qty_child['cost'];
+                $l_avg_cost[]=$qty_sale_cost;//$qty_child['cost'];
                 $sizes_list_api[]=$qty_child['size_name'];
                 $l_qty_id[]=$qty_id;
                 $l_in_stock[]=$d_in_stock;
@@ -389,6 +402,8 @@ class Api extends MY_REST_Controller
                 "tour_id"=>$qty_data['tour_id'],
                 "show_id"=>$qty_data['show_id'],
                 "qty_id"=>$qty_data['qty_id'],
+                //"cost"=>$qty_data['cost'],
+                "sale_price"=>$qty_data['sale_price'],
                 "in_stock"=>$qty_data['in_stock'],
                 "adds1"=>$qty_data['adds1'],
                 "adds2"=>$qty_data['adds2'],
@@ -408,6 +423,37 @@ class Api extends MY_REST_Controller
                 $this->db->insert('merch_counts',$raw_data);
             }   
         //}
+        $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
+    }
+    public function counts_change_price_post()
+    {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $tour_id=$_POST['tour_id'];
+        $show_id=$_POST['show_id'];
+        for($i=0; $i < count($_POST['prices']); $i++){
+            $qty_id=$_POST['prices'][$i]['qty_id'];
+            $cost=$_POST['prices'][$i]['cost'];
+            $sale_price=$_POST['prices'][$i]['sale_price'];
+            $raw_data=[
+                "tour_id"=>$tour_id,
+                "show_id"=>$show_id,
+                "qty_id"=>$qty_id,
+                "cost"=>$cost,
+                "sale_price"=>$sale_price,
+            ];
+            $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'qty_id'=>$qty_id];
+            $getdata=$this->db->get_where('merch_counts',$check_where)->row();
+            if($getdata){
+                $raw_data["updated_at"]=date('Y-m-d H:i:s');
+                $raw_data["updated_by"]=$token_data->id;
+                $this->db->where($check_where)->update('merch_counts',$raw_data);
+            }else{
+                $raw_data["created_at"]=date('Y-m-d H:i:s');
+                $raw_data["created_by"]=$token_data->id;
+                $this->db->insert('merch_counts',$raw_data);
+            }   
+        }
         $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
     }
 }

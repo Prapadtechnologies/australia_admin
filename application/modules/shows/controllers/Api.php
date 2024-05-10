@@ -44,44 +44,46 @@ class Api extends MY_REST_Controller
         check_completed_shows();
             //$where="lower('name') like '%".strtolower($target)."%'";
         $status=$this->input->get('status');
-        if($tour_id == ''){
+        /*if($tour_id == ''){
             $res=$this->db->order_by('tour_name','asc')->get('tour')->row();
             $tour_id=$res->id;
+        }*/
+        if($tour_id != ''){
+           /*         $this->db->select('*');
+                    $this->db->order_by('start_date','asc');
+                    $this->db->where('tour_id',$tour_id);
+            $total = $this->db->get('shows');
+            $total_count=$total->num_rows();
+            $total_data=$total->result_array();*/
+
+                    $this->db->select('*');
+                    $this->db->order_by('start_date','asc');
+                    $this->db->where('tour_id',$tour_id);
+                    //$this->db->where('start_date >=',date('Y-m-d'));
+                    $this->db->where('status','active');
+            $left = $this->db->get('shows');
+            $left_count=$left->num_rows();
+            $left_data=$left->result_array();
+
+                    $this->db->select('*');
+                    $this->db->order_by('start_date','asc');
+                    $this->db->where('tour_id',$tour_id);
+                    $this->db->where('status','inactive');
+            $cancelled = $this->db->get('shows');
+            $cancelled_count=$cancelled->num_rows();
+            $cancelled_data=$cancelled->result_array();
+
+                    $this->db->select('*');
+                    $this->db->order_by('start_date','asc');
+                    $this->db->where('tour_id',$tour_id);
+                    //$this->db->where('end_date <',date('Y-m-d'));
+                    $this->db->where('status','completed');
+            $completed = $this->db->get('shows');
+            $completed_count=$completed->num_rows();
+            $completed_data=$completed->result_array();
+        }else{
+            $left_count=$cancelled_count=$completed_count=0;
         }
-
-                $this->db->select('*');
-                $this->db->order_by('start_date','asc');
-                $this->db->where('tour_id',$tour_id);
-        $total = $this->db->get('shows');
-        $total_count=$total->num_rows();
-        $total_data=$total->result_array();
-
-                $this->db->select('*');
-                $this->db->order_by('start_date','asc');
-                $this->db->where('tour_id',$tour_id);
-                //$this->db->where('start_date >=',date('Y-m-d'));
-                $this->db->where('status','active');
-        $left = $this->db->get('shows');
-        $left_count=$left->num_rows();
-        $left_data=$left->result_array();
-
-                $this->db->select('*');
-                $this->db->order_by('start_date','asc');
-                $this->db->where('tour_id',$tour_id);
-                $this->db->where('status','inactive');
-        $cancelled = $this->db->get('shows');
-        $cancelled_count=$cancelled->num_rows();
-        $cancelled_data=$cancelled->result_array();
-
-                $this->db->select('*');
-                $this->db->order_by('start_date','asc');
-                $this->db->where('tour_id',$tour_id);
-                //$this->db->where('end_date <',date('Y-m-d'));
-                $this->db->where('status','completed');
-        $completed = $this->db->get('shows');
-        $completed_count=$completed->num_rows();
-        $completed_data=$completed->result_array();
-
 
         $data['shows_status']=[
             //['key'=>'total','label'=>'Total Shows','count'=>$total_count],
@@ -89,7 +91,8 @@ class Api extends MY_REST_Controller
             ['key'=>'cancelled','label'=>'Cancelled','count'=>$cancelled_count],
             ['key'=>'completed','label'=>'Completed','count'=>$completed_count]
         ];
-        if($status == 'total' || $status == 'left' || $status == 'cancelled' || $status == 'completed'){
+        if($tour_id != '' && ($status == 'total' || $status == 'left' || $status == 'cancelled' || $status == 'completed'))
+        {
             $list_data=$$status->result_array();
         }else{
             $list_data=[];

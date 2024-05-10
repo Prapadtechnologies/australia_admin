@@ -48,7 +48,9 @@ class Api extends MY_REST_Controller
             $res=$this->db->order_by('tour_name','asc')->get('tour')->row();
             $tour_id=$res->id;
         }*/
-        if($tour_id != ''){
+        $res=$this->db->order_by('tour_name','asc')->get('tour')->where('tour_id',$tour_id)->row();
+        //$tour_id=$res->id;
+        if($res != ''){
            /*         $this->db->select('*');
                     $this->db->order_by('start_date','asc');
                     $this->db->where('tour_id',$tour_id);
@@ -91,7 +93,7 @@ class Api extends MY_REST_Controller
             ['key'=>'cancelled','label'=>'Cancelled','count'=>$cancelled_count],
             ['key'=>'completed','label'=>'Completed','count'=>$completed_count]
         ];
-        if($tour_id != '' && ($status == 'total' || $status == 'left' || $status == 'cancelled' || $status == 'completed'))
+        if($res != '' && ($status == 'total' || $status == 'left' || $status == 'cancelled' || $status == 'completed'))
         {
             $list_data=$$status->result_array();
         }else{

@@ -48,7 +48,11 @@ class Api extends MY_REST_Controller
             $res=$this->db->order_by('tour_name','asc')->get('tour')->row();
             $tour_id=$res->id;
         }*/
-        $res=$this->db->order_by('tour_name','asc')->get('tour')->where('tour_id',$tour_id)->row();
+        if($tour_id != '' && $tour_id != 'undefined'){
+            $res=$this->db->order_by('tour_name','asc')->where('id',$tour_id)->get('tour')->row();
+        }else{
+            $res='';
+        }
         //$tour_id=$res->id;
         if($res != ''){
            /*         $this->db->select('*');

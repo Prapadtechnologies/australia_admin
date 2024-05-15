@@ -455,6 +455,7 @@ class Api extends MY_REST_Controller
             $raw_data=[
                 "tour_id"=>$tour_id,
                 "show_id"=>$show_id,
+                "stand_type"=>$stand_type,
                 "qty_id"=>$qty_id,
                 "cost"=>$cost,
                 "sale_price"=>$sale_price,

@@ -283,6 +283,7 @@ class Api extends MY_REST_Controller
         $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $show_id=$this->input->get('show_id');
         $tour_id=$this->input->get('tour_id');
+        $stand_type=$this->input->get('stand_type') ?? 1;
         $merch_ids=[];
         $data=[];
         
@@ -304,6 +305,9 @@ class Api extends MY_REST_Controller
             //$this->db->where('m.user_id',$token_data->id);
             $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
             $merch = $this->db->get('merch as m')->result_array();
+
+            $stand_type_list=$this->db->select('id,stand_type')->get_where('merch_count_stands',['tour_id'=>$tour_id,'show_id'=>$show_id])->result_array();
+            $data['stand_type_list']=$stand_type_list;
             //print_r($merch);
         }else{
             $merch=[];
@@ -317,7 +321,7 @@ class Api extends MY_REST_Controller
             foreach ($child_data as $qty_child) {
                 $qty_sale_cost=$qty_child['sale_price'];
                 $total_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id']];
-                $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer','stock_id'=>$tour_id];
+                $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer','stock_id'=>$trailer_ids['id']];
                 $total_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$total_where)->row_array();
                 //$trailer_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
                 $trailer_onhand=$this->db->select('id as qty_id,cost as qty_sale_cost,quantity as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
@@ -333,7 +337,7 @@ class Api extends MY_REST_Controller
                 }
                 $d_in_stock=$d_adds=$d_adds1=$d_adds2=$d_adds3=$d_comps=$d_out_stock=0;
                 if($qty_id > 0){
-                    $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'qty_id'=>$qty_id];
+                    $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'stand_type'=>$stand_type,'qty_id'=>$qty_id];
                     $getdata=$this->db->get_where('merch_counts',$check_where)->row();
                     if($getdata != ''){
                         $qty_sale_cost=$getdata->sale_price;
@@ -403,6 +407,7 @@ class Api extends MY_REST_Controller
                 "show_id"=>$qty_data['show_id'],
                 "qty_id"=>$qty_data['qty_id'],
                 //"cost"=>$qty_data['cost'],
+                "stand_type"=>$qty_data['stand_type'] ?? 1,
                 "sale_price"=>$qty_data['sale_price'],
                 "in_stock"=>$qty_data['in_stock'],
                 "adds1"=>$qty_data['adds1'],
@@ -411,7 +416,7 @@ class Api extends MY_REST_Controller
                 "comps"=>$qty_data['comps'],
                 "out_stock"=>$qty_data['out_stock']
             ];
-            $check_where=['tour_id'=>$qty_data['tour_id'],'show_id'=>$qty_data['show_id'],'qty_id'=>$qty_data['qty_id']];
+            $check_where=['tour_id'=>$qty_data['tour_id'],'show_id'=>$qty_data['show_id'],'stand_type'=>$qty_data['stand_type'],'qty_id'=>$qty_data['qty_id']];
             $getdata=$this->db->get_where('merch_counts',$check_where)->row();
             if($getdata){
                 $raw_data["updated_at"]=date('Y-m-d H:i:s');
@@ -423,6 +428,17 @@ class Api extends MY_REST_Controller
                 $this->db->insert('merch_counts',$raw_data);
             }   
         //}
+        $stand_data=[
+            "tour_id"=>$raw_data['tour_id'],
+            "show_id"=>$raw_data['show_id'],
+            "stand_type"=>$raw_data['stand_type']
+        ]; 
+        $getstanddata=$this->db->get_where('merch_count_stands',$stand_data)->row();
+        if($getstanddata == ''){           
+            $stand_data["created_at"]=date('Y-m-d H:i:s');
+            $stand_data["created_by"]=$token_data->id;
+            $this->db->insert('merch_count_stands',$stand_data);
+        }
         $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
     }
     public function counts_change_price_post()
@@ -431,6 +447,7 @@ class Api extends MY_REST_Controller
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
         $tour_id=$_POST['tour_id'];
         $show_id=$_POST['show_id'];
+        $stand_type=$_POST['stand_type'] ?? 1;
         for($i=0; $i < count($_POST['prices']); $i++){
             $qty_id=$_POST['prices'][$i]['qty_id'];
             $cost=$_POST['prices'][$i]['cost'];
@@ -442,7 +459,7 @@ class Api extends MY_REST_Controller
                 "cost"=>$cost,
                 "sale_price"=>$sale_price,
             ];
-            $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'qty_id'=>$qty_id];
+            $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'stand_type'=>$stand_type,'qty_id'=>$qty_id];
             $getdata=$this->db->get_where('merch_counts',$check_where)->row();
             if($getdata){
                 $raw_data["updated_at"]=date('Y-m-d H:i:s');
@@ -454,6 +471,23 @@ class Api extends MY_REST_Controller
                 $this->db->insert('merch_counts',$raw_data);
             }   
         }
+        $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
+    }
+    public function add_stand_type_post()
+    {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $tour_id=$_POST['tour_id'];
+        $show_id=$_POST['show_id'];
+        $stand_type=$_POST['stand_type'];
+        $raw_data=[
+            "tour_id"=>$tour_id,
+            "show_id"=>$show_id,
+            "stand_type"=>$stand_type
+        ];            
+        $raw_data["created_at"]=date('Y-m-d H:i:s');
+        $raw_data["created_by"]=$token_data->id;
+        $this->db->insert('merch_count_stands',$raw_data);  
         $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
     }
 }

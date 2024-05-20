@@ -398,36 +398,92 @@ class Api extends MY_REST_Controller
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
-        //for($i=0; $i < count($_POST); $i++){
-            $qty_data=$_POST;
-            $raw_data=[
-                // "merch_id"=>$qty_data['merch_id'],
-                // "merch_child_id"=>$qty_data['merch_child_id'],
-                "tour_id"=>$qty_data['tour_id'],
-                "show_id"=>$qty_data['show_id'],
-                "qty_id"=>$qty_data['qty_id'],
-                //"cost"=>$qty_data['cost'],
-                "stand_type"=>$qty_data['stand_type'] ?? 1,
-                "sale_price"=>$qty_data['sale_price'],
-                "in_stock"=>$qty_data['in_stock'],
-                "adds1"=>$qty_data['adds1'],
-                "adds2"=>$qty_data['adds2'],
-                "adds3"=>$qty_data['adds3'],
-                "comps"=>$qty_data['comps'],
-                "out_stock"=>$qty_data['out_stock']
-            ];
-            $check_where=['tour_id'=>$qty_data['tour_id'],'show_id'=>$qty_data['show_id'],'stand_type'=>$qty_data['stand_type'],'qty_id'=>$qty_data['qty_id']];
-            $getdata=$this->db->get_where('merch_counts',$check_where)->row();
-            if($getdata){
-                $raw_data["updated_at"]=date('Y-m-d H:i:s');
-                $raw_data["updated_by"]=$token_data->id;
-                $this->db->where($check_where)->update('merch_counts',$raw_data);
+        $qty_data=$_POST;
+        $raw_data=[
+            // "merch_id"=>$qty_data['merch_id'],
+            // "merch_child_id"=>$qty_data['merch_child_id'],
+            "tour_id"=>$qty_data['tour_id'],
+            "show_id"=>$qty_data['show_id'],
+            "qty_id"=>$qty_data['qty_id'],
+            //"cost"=>$qty_data['cost'],
+            "stand_type"=>$qty_data['stand_type'] ?? 1,
+            "sale_price"=>$qty_data['sale_price'],
+            "in_stock"=>$qty_data['in_stock'],
+            "adds1"=>$qty_data['adds1'],
+            "adds2"=>$qty_data['adds2'],
+            "adds3"=>$qty_data['adds3'],
+            "comps"=>$qty_data['comps'],
+            "out_stock"=>$qty_data['out_stock']
+        ];
+        $check_where=['tour_id'=>$qty_data['tour_id'],'show_id'=>$qty_data['show_id'],'stand_type'=>$raw_data['stand_type'],'qty_id'=>$qty_data['qty_id']];
+        $getdata=$this->db->get_where('merch_counts',$check_where)->row_array();
+
+        $trailer_onhand=$this->db->get_where('merch_quantity',['id'=>$qty_data['qty_id']])->row_array();
+        //echo $this->db->last_query();die;
+        $total_quantity=$trailer_onhand['quantity'];
+ 
+        /* echo "<pre/>";
+        print_r($getdata);
+        print_r($trailer_onhand);die;*/
+        
+        if($getdata){
+            $raw_data["updated_at"]=date('Y-m-d H:i:s');
+            $raw_data["updated_by"]=$token_data->id;
+            $up_res=$this->db->where($check_where)->update('merch_counts',$raw_data);
+
+            if($qty_data['in_stock'] > $getdata['in_stock']){
+                $less_total_quantity=$total_quantity - $qty_data['in_stock'];
+            }else if($qty_data['in_stock'] < $getdata['in_stock']){
+                $less_total_quantity=$getdata['in_stock'] - $qty_data['in_stock'] + $total_quantity;
             }else{
-                $raw_data["created_at"]=date('Y-m-d H:i:s');
-                $raw_data["created_by"]=$token_data->id;
-                $this->db->insert('merch_counts',$raw_data);
-            }   
-        //}
+                $less_total_quantity=0;
+            }
+
+            if($qty_data['adds1'] > $getdata['adds1']){
+                $adds1_total_quantity=$total_quantity - $qty_data['adds1'];
+            }else if($qty_data['adds1'] < $getdata['adds1']){
+                $adds1_total_quantity=$getdata['adds1'] - $qty_data['adds1'] + $total_quantity;
+            }else{
+                $adds1_total_quantity=0;
+            }
+
+            if($qty_data['adds2'] > $getdata['adds2']){
+                $adds2_total_quantity=$total_quantity - $qty_data['adds2'];
+            }else if($qty_data['adds2'] < $getdata['adds2']){
+                $adds2_total_quantity=$getdata['adds2'] - $qty_data['adds2'] + $total_quantity;
+            }else{
+                $adds2_total_quantity=0;
+            }
+
+            if($qty_data['adds3'] > $getdata['adds3']){
+                $adds3_total_quantity=$total_quantity - $qty_data['adds3'];
+            }else if($qty_data['adds3'] < $getdata['adds3']){
+                $adds3_total_quantity=$getdata['adds3'] - $qty_data['adds3'] + $total_quantity;
+            }else{
+                $adds3_total_quantity=0;
+            }
+
+            if($less_total_quantity != 0){
+                $final_quantity=$less_total_quantity;
+            }elseif($adds1_total_quantity != 0){
+                $final_quantity=$adds1_total_quantity;
+            }elseif($adds2_total_quantity != 0){
+                $final_quantity=$adds2_total_quantity;
+            }elseif($adds3_total_quantity != 0){
+                $final_quantity=$adds3_total_quantity;
+            }else{
+                $final_quantity=0;
+            }
+            if($final_quantity != 0){
+                $this->db->where(['id'=>$qty_data['qty_id']])->update('merch_quantity',['quantity'=>$final_quantity]);
+            }
+        }else{
+            $raw_data["created_at"]=date('Y-m-d H:i:s');
+            $raw_data["created_by"]=$token_data->id;
+            $up_res=$this->db->insert('merch_counts',$raw_data);
+            $less_total_quantity=$total_quantity - $qty_data['in_stock'];
+            $this->db->where(['id'=>$qty_data['qty_id']])->update('merch_quantity',['quantity'=>$less_total_quantity]);
+        }   
         $stand_data=[
             "tour_id"=>$raw_data['tour_id'],
             "show_id"=>$raw_data['show_id'],

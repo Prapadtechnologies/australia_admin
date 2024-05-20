@@ -162,6 +162,31 @@ class Auth extends MY_REST_Controller
         }
     }
     
+    // change password
+    public function change_password_post()
+    {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $this->form_validation->set_rules('old', $this->lang->line('change_password_validation_old_password_label'), 'required');
+        $this->form_validation->set_rules('new', $this->lang->line('change_password_validation_new_password_label'), 'required|min_length[' . $this->config->item('min_password_length', 'ion_auth') . ']|max_length[' . $this->config->item('max_password_length', 'ion_auth') . ']|matches[new_confirm]');
+        $this->form_validation->set_rules('new_confirm', $this->lang->line('change_password_validation_new_password_confirm_label'), 'required');
+
+        if ($this->form_validation->run() == false)
+        {
+            $this->set_response(validation_errors(), REST_Controller::HTTP_NO_CONTENT, FALSE);
+        }
+        else
+        {
+            $identity = $token_data->userdetail->username;
+            
+            $change = $this->ion_auth->change_password($identity, $this->input->post('old'), $this->input->post('new'));
+            if ($change) {
+                $this->set_response_simple($identity, $this->ion_auth->messages(), REST_Controller::HTTP_OK, TRUE);
+            } else {
+                $this->set_response_simple(NULL, $this->ion_auth->errors(), REST_Controller::HTTP_NO_CONTENT, FALSE);
+            }
+        }
+    }
     /**
      * @desc Forgot password Recovery
      * @param string emial

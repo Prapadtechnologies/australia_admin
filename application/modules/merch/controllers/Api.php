@@ -463,6 +463,14 @@ class Api extends MY_REST_Controller
                 $adds3_total_quantity=0;
             }
 
+            if($qty_data['comps'] > $getdata['comps']){
+                $comps_total_quantity=$total_quantity - $qty_data['comps'];
+            }else if($qty_data['comps'] < $getdata['comps']){
+                $comps_total_quantity=$getdata['comps'] - $qty_data['comps'] + $total_quantity;
+            }else{
+                $comps_total_quantity=0;
+            }
+
             if($less_total_quantity != 0){
                 $final_quantity=$less_total_quantity;
             }elseif($adds1_total_quantity != 0){
@@ -471,6 +479,8 @@ class Api extends MY_REST_Controller
                 $final_quantity=$adds2_total_quantity;
             }elseif($adds3_total_quantity != 0){
                 $final_quantity=$adds3_total_quantity;
+            }elseif($comps_total_quantity != 0){
+                $final_quantity=$comps_total_quantity;
             }else{
                 $final_quantity=0;
             }
@@ -481,7 +491,7 @@ class Api extends MY_REST_Controller
             $raw_data["created_at"]=date('Y-m-d H:i:s');
             $raw_data["created_by"]=$token_data->id;
             $up_res=$this->db->insert('merch_counts',$raw_data);
-            $less_total_quantity=$total_quantity - $qty_data['in_stock'];
+            $less_total_quantity=$total_quantity - $qty_data['in_stock'] - $qty_data['adds1'] - $qty_data['adds2'] - $qty_data['adds3'] - $qty_data['comps'];
             $this->db->where(['id'=>$qty_data['qty_id']])->update('merch_quantity',['quantity'=>$less_total_quantity]);
         }   
         $stand_data=[

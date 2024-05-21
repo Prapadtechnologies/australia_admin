@@ -463,13 +463,13 @@ class Api extends MY_REST_Controller
                 $adds3_total_quantity=0;
             }
 
-            if($qty_data['comps'] > $getdata['comps']){
+            /*if($qty_data['comps'] > $getdata['comps']){
                 $comps_total_quantity=$total_quantity - $qty_data['comps'];
             }else if($qty_data['comps'] < $getdata['comps']){
                 $comps_total_quantity=$getdata['comps'] - $qty_data['comps'] + $total_quantity;
             }else{
                 $comps_total_quantity=0;
-            }
+            }*/
 
             if($less_total_quantity != 0){
                 $final_quantity=$less_total_quantity;
@@ -479,11 +479,11 @@ class Api extends MY_REST_Controller
                 $final_quantity=$adds2_total_quantity;
             }elseif($adds3_total_quantity != 0){
                 $final_quantity=$adds3_total_quantity;
-            }elseif($comps_total_quantity != 0){
+            }/*elseif($comps_total_quantity != 0){
                 $final_quantity=$comps_total_quantity;
             }else{
                 $final_quantity=0;
-            }
+            }*/
             if($final_quantity != 0){
                 $this->db->where(['id'=>$qty_data['qty_id']])->update('merch_quantity',['quantity'=>$final_quantity]);
             }

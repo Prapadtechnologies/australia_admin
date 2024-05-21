@@ -432,33 +432,33 @@ class Api extends MY_REST_Controller
             $up_res=$this->db->where($check_where)->update('merch_counts',$raw_data);
 
             if($qty_data['in_stock'] > $getdata['in_stock']){
-                $less_total_quantity=$total_quantity - $qty_data['in_stock'];
+                $less_total_quantity=$total_quantity - ($qty_data['in_stock'] - $getdata['in_stock']);
             }else if($qty_data['in_stock'] < $getdata['in_stock']){
-                $less_total_quantity=$getdata['in_stock'] - $qty_data['in_stock'] + $total_quantity;
+                $less_total_quantity=($getdata['in_stock'] - $qty_data['in_stock']) + $total_quantity;
             }else{
                 $less_total_quantity=0;
             }
 
             if($qty_data['adds1'] > $getdata['adds1']){
-                $adds1_total_quantity=$total_quantity - $qty_data['adds1'];
+                $adds1_total_quantity=$total_quantity - ($qty_data['adds1'] - $getdata['adds1']);
             }else if($qty_data['adds1'] < $getdata['adds1']){
-                $adds1_total_quantity=$getdata['adds1'] - $qty_data['adds1'] + $total_quantity;
+                $adds1_total_quantity=($getdata['adds1'] - $qty_data['adds1']) + $total_quantity;
             }else{
                 $adds1_total_quantity=0;
             }
 
             if($qty_data['adds2'] > $getdata['adds2']){
-                $adds2_total_quantity=$total_quantity - $qty_data['adds2'];
+                $adds2_total_quantity=$total_quantity - ($qty_data['adds2'] - $getdata['adds2']);
             }else if($qty_data['adds2'] < $getdata['adds2']){
-                $adds2_total_quantity=$getdata['adds2'] - $qty_data['adds2'] + $total_quantity;
+                $adds2_total_quantity=($getdata['adds2'] - $qty_data['adds2']) + $total_quantity;
             }else{
                 $adds2_total_quantity=0;
             }
 
             if($qty_data['adds3'] > $getdata['adds3']){
-                $adds3_total_quantity=$total_quantity - $qty_data['adds3'];
+                $adds3_total_quantity=$total_quantity - ($qty_data['adds3'] - $getdata['adds3']);
             }else if($qty_data['adds3'] < $getdata['adds3']){
-                $adds3_total_quantity=$getdata['adds3'] - $qty_data['adds3'] + $total_quantity;
+                $adds3_total_quantity=($getdata['adds3'] - $qty_data['adds3']) + $total_quantity;
             }else{
                 $adds3_total_quantity=0;
             }

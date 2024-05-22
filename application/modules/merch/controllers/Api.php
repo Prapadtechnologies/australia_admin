@@ -64,8 +64,8 @@ class Api extends MY_REST_Controller
             $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>$stock_type,'stock_id'=>$stock_id])->result_array();
             if(count($merch_ids) > 0){
                 $this->db->select('m.*,s.name,c.colour_name');
-                $this->db->join('sub_categories as s','s.id = m.product_type');
-                $this->db->join('colours as c','c.id = m.colour');
+                $this->db->join('sub_categories as s','s.id = m.product_type','left');
+                $this->db->join('colours as c','c.id = m.colour','left');
                 $this->db->order_by('m.updated_at','desc');
                 $this->db->where('m.user_id',$token_data->id);
                 $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
@@ -82,7 +82,8 @@ class Api extends MY_REST_Controller
             $merch = $this->db->get('merch as m')->result_array();
         }
         foreach ($merch as $mer) {
-            $child_data=$this->db->select('m.*,s.size_name')->join('sizes as s','s.id = m.size')->get_where('merch_child as m',['m.merch_id'=>$mer['id']])->result_array();
+            $child_data=$this->db->select('m.*,s.size_name')->join('sizes as s','s.id = m.size','left')->get_where('merch_child as m',['m.merch_id'=>$mer['id']])->result_array();
+            //print_r($child_data);die;
             $child_list_data=[];
             $total_quantity_count=0;
             $l_ordered=$l_warehouse_inbound=$l_warehouse_onhand=$l_trailer_inbound=$l_trailer_onhand=$l_total=$l_out_bound=$l_avg_cost=$sizes_list_api=[];
@@ -204,16 +205,28 @@ class Api extends MY_REST_Controller
             $this->db->insert('merch',$raw_data);
             $id = $this->db->insert_id();
             if($id){
-                $child=$_POST['child'];
-                for($i=0; $i < count($child); $i++){
+                if($raw_data['category'] == 'Apperal'){
+                    $child=$_POST['child'];
+                    for($i=0; $i < count($child); $i++){
+                        $child_data=[
+                            "merch_id"=>$id,
+                            "size_type"=>$child[$i]['size_type'],
+                            "size"=>$child[$i]['size'],
+                            "sku_code"=>$child[$i]['sku_code'],
+                            "product_code"=>$child[$i]['product_code'],
+                            "sale_price"=>$child[$i]['sale_price'],
+                            "cost"=>$child[$i]['cost'],
+                            "created_at"=>date('Y-m-d H:i:s'),
+                            "created_by"=>$token_data->id
+                        ];
+                        $this->db->insert('merch_child',$child_data);
+                    }
+                }else{
                     $child_data=[
                         "merch_id"=>$id,
-                        "size_type"=>$child[$i]['size_type'],
-                        "size"=>$child[$i]['size'],
-                        "sku_code"=>$child[$i]['sku_code'],
-                        "product_code"=>$child[$i]['product_code'],
-                        "sale_price"=>$child[$i]['sale_price'],
-                        "cost"=>$child[$i]['cost'],
+                        "sku_code"=>$raw_data['sku'],
+                        "sale_price"=>$raw_data['sale_price'],
+                        "cost"=>$raw_data['cost'],
                         "created_at"=>date('Y-m-d H:i:s'),
                         "created_by"=>$token_data->id
                     ];
@@ -312,8 +325,8 @@ class Api extends MY_REST_Controller
 
         if($merch_ids != '' && count($merch_ids) > 0){
             $this->db->select('m.*,s.name,c.colour_name');
-            $this->db->join('sub_categories as s','s.id = m.product_type');
-            $this->db->join('colours as c','c.id = m.colour');
+            $this->db->join('sub_categories as s','s.id = m.product_type','left');
+            $this->db->join('colours as c','c.id = m.colour','left');
             $this->db->order_by('m.updated_at','desc');
             //$this->db->where('m.user_id',$token_data->id);
             $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
@@ -337,7 +350,7 @@ class Api extends MY_REST_Controller
         }
         
         foreach ($merch as $mer) {
-            $child_data=$this->db->select('m.*,s.size_name')->join('sizes as s','s.id = m.size')->get_where('merch_child as m',['m.merch_id'=>$mer['id']])->result_array();
+            $child_data=$this->db->select('m.*,s.size_name')->join('sizes as s','s.id = m.size','left')->get_where('merch_child as m',['m.merch_id'=>$mer['id']])->result_array();
             $child_list_data=[];
             $total_quantity_count=0;
             $l_trailer_inbound=$l_trailer_onhand=$l_total=$l_avg_cost=$sizes_list_api=$l_qty_id=$l_in_stock=$l_adds=$l_adds1=$l_adds2=$l_adds3=$l_comps=$l_out_stock=[];

@@ -132,7 +132,7 @@ class Api extends MY_REST_Controller
             }else{
                 $mer['image2']=base_url('uploads/merch_image/default.png');
             }
-            
+
             $mer['total_merch']=100;
             $mer['quantity_total']=$total_quantity_count;
             if($stock_type != '' && $stock_id != ''){
@@ -321,7 +321,7 @@ class Api extends MY_REST_Controller
             $data['stand_type_list']=$stand_type_list;
             //$show_info=$this->db->select('*')->get_where('merch_count_shows',['tour_id'=>$tour_id,'show_id'=>$show_id])->row_array();
             //if(count($show_info) > 0){
-            $show_info=$this->db->select('*')->get_where('shows',['tour_id'=>$tour_id,'show_id'=>$show_id])->row_array();
+            $show_info=$this->db->select('*')->get_where('shows',['tour_id'=>$tour_id,'id'=>$show_id])->row_array();
             //}
             $data['shows_data']=[
                 'tax_method'=>$show_info['tax_method'],

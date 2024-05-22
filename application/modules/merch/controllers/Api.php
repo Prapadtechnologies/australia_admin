@@ -120,8 +120,19 @@ class Api extends MY_REST_Controller
                 $l_avg_cost[]=$qty_child['cost'];
                 $sizes_list_api[]=$qty_child['size_name'];
             }
-            $mer['image1']=base_url('uploads/merch_image/merch_1_'.$mer['id'].'.png');
-            $mer['image2']=base_url('uploads/merch_image/merch_2_'.$mer['id'].'.png');
+
+            if (file_exists('./uploads/merch_image/merch_1_'.$mer['id'].'.png')) {
+                $mer['image1']=base_url('uploads/merch_image/merch_1_'.$mer['id'].'.png');
+            }else{
+                $mer['image1']=base_url('uploads/merch_image/default.png');
+            }
+
+            if (file_exists('./uploads/merch_image/merch_2_'.$mer['id'].'.png')) {
+                $mer['image2']=base_url('uploads/merch_image/merch_2_'.$mer['id'].'.png');
+            }else{
+                $mer['image2']=base_url('uploads/merch_image/default.png');
+            }
+            
             $mer['total_merch']=100;
             $mer['quantity_total']=$total_quantity_count;
             if($stock_type != '' && $stock_id != ''){
@@ -308,6 +319,16 @@ class Api extends MY_REST_Controller
 
             $stand_type_list=$this->db->select('id,stand_type')->get_where('merch_count_stands',['tour_id'=>$tour_id,'show_id'=>$show_id])->result_array();
             $data['stand_type_list']=$stand_type_list;
+            //$show_info=$this->db->select('*')->get_where('merch_count_shows',['tour_id'=>$tour_id,'show_id'=>$show_id])->row_array();
+            //if(count($show_info) > 0){
+            $show_info=$this->db->select('*')->get_where('shows',['tour_id'=>$tour_id,'show_id'=>$show_id])->row_array();
+            //}
+            $data['shows_data']=[
+                'tax_method'=>$show_info['tax_method'],
+                'tax_apparel'=>$show_info['tax_apparel'],
+                'tax_others'=>$show_info['tax_others'],
+                'tax_music'=>$show_info['tax_music']
+            ];
             //print_r($merch);
         }else{
             $merch=[];
@@ -373,8 +394,18 @@ class Api extends MY_REST_Controller
                 $l_out_stock[]=$d_out_stock;
             }
 
-            $mer['image1']=base_url('uploads/merch_image/merch_1_'.$mer['id'].'.png');
-            $mer['image2']=base_url('uploads/merch_image/merch_2_'.$mer['id'].'.png');
+            if (file_exists('./uploads/merch_image/merch_1_'.$mer['id'].'.png')) {
+                $mer['image1']=base_url('uploads/merch_image/merch_1_'.$mer['id'].'.png');
+            }else{
+                $mer['image1']=base_url('uploads/merch_image/default.png');
+            }
+
+            if (file_exists('./uploads/merch_image/merch_2_'.$mer['id'].'.png')) {
+                $mer['image2']=base_url('uploads/merch_image/merch_2_'.$mer['id'].'.png');
+            }else{
+                $mer['image2']=base_url('uploads/merch_image/default.png');
+            }
+            
             
             $mer['quantity_total']=$total_quantity_count;
             $mer['global']   = ['title'=>'Global','data'=>$l_total];
@@ -389,6 +420,12 @@ class Api extends MY_REST_Controller
                 'graph_data'=>$l_total
             ];
             $mer['child_list']=$child_list_data;
+            $merch_show_info=$this->db->select('*')->get_where('merch_count_shows',['tour_id'=>$tour_id,'show_id'=>$show_id,'merch_id'=>$mer['id']])->row_array();
+            if(count($merch_show_info) > 0){
+                $mer['merch_tax']=$merch_show_info['tax_'.strtolower($mer['category'])];
+            }else{
+                $mer['merch_tax']=$show_info['tax_'.strtolower($mer['category'])];
+            }
             $data['merch_list'][]=$mer;
         }  
         $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
@@ -431,34 +468,35 @@ class Api extends MY_REST_Controller
             $raw_data["updated_by"]=$token_data->id;
             $up_res=$this->db->where($check_where)->update('merch_counts',$raw_data);
 
+            $final_quantity=$total_quantity;
             if($qty_data['in_stock'] > $getdata['in_stock']){
-                $less_total_quantity=$total_quantity - ($qty_data['in_stock'] - $getdata['in_stock']);
+                $final_quantity=$final_quantity - ($qty_data['in_stock'] - $getdata['in_stock']);
             }else if($qty_data['in_stock'] < $getdata['in_stock']){
-                $less_total_quantity=($getdata['in_stock'] - $qty_data['in_stock']) + $total_quantity;
+                $final_quantity=($getdata['in_stock'] - $qty_data['in_stock']) + $final_quantity;
             }else{
                 $less_total_quantity=0;
             }
 
             if($qty_data['adds1'] > $getdata['adds1']){
-                $adds1_total_quantity=$total_quantity - ($qty_data['adds1'] - $getdata['adds1']);
+                $final_quantity=$final_quantity - ($qty_data['adds1'] - $getdata['adds1']);
             }else if($qty_data['adds1'] < $getdata['adds1']){
-                $adds1_total_quantity=($getdata['adds1'] - $qty_data['adds1']) + $total_quantity;
+                $final_quantity=($getdata['adds1'] - $qty_data['adds1']) + $final_quantity;
             }else{
                 $adds1_total_quantity=0;
             }
 
             if($qty_data['adds2'] > $getdata['adds2']){
-                $adds2_total_quantity=$total_quantity - ($qty_data['adds2'] - $getdata['adds2']);
+                $final_quantity=$final_quantity - ($qty_data['adds2'] - $getdata['adds2']);
             }else if($qty_data['adds2'] < $getdata['adds2']){
-                $adds2_total_quantity=($getdata['adds2'] - $qty_data['adds2']) + $total_quantity;
+                $final_quantity=($getdata['adds2'] - $qty_data['adds2']) + $final_quantity;
             }else{
                 $adds2_total_quantity=0;
             }
 
             if($qty_data['adds3'] > $getdata['adds3']){
-                $adds3_total_quantity=$total_quantity - ($qty_data['adds3'] - $getdata['adds3']);
+                $final_quantity=$final_quantity - ($qty_data['adds3'] - $getdata['adds3']);
             }else if($qty_data['adds3'] < $getdata['adds3']){
-                $adds3_total_quantity=($getdata['adds3'] - $qty_data['adds3']) + $total_quantity;
+                $final_quantity=($getdata['adds3'] - $qty_data['adds3']) + $final_quantity;
             }else{
                 $adds3_total_quantity=0;
             }
@@ -471,7 +509,7 @@ class Api extends MY_REST_Controller
                 $comps_total_quantity=0;
             }*/
 
-            if($less_total_quantity != 0){
+            /*if($less_total_quantity != 0){
                 $final_quantity=$less_total_quantity;
             }elseif($adds1_total_quantity != 0){
                 $final_quantity=$adds1_total_quantity;
@@ -479,7 +517,7 @@ class Api extends MY_REST_Controller
                 $final_quantity=$adds2_total_quantity;
             }elseif($adds3_total_quantity != 0){
                 $final_quantity=$adds3_total_quantity;
-            }/*elseif($comps_total_quantity != 0){
+            }elseif($comps_total_quantity != 0){
                 $final_quantity=$comps_total_quantity;
             }else{
                 $final_quantity=0;
@@ -538,6 +576,52 @@ class Api extends MY_REST_Controller
                 $this->db->insert('merch_counts',$raw_data);
             }   
         }
+        $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
+    }
+    public function counts_change_tax_post()
+    {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $tour_id=$_POST['tour_id'];
+        $show_id=$_POST['show_id'];
+        $merch_id=$_POST['merch_id'];
+        $category=$_POST['category'];
+        $tax_per=$_POST['tax_per'];
+        $raw_data=[
+            "tour_id"=>$tour_id,
+            "show_id"=>$show_id,
+            "merch_id"=>$merch_id,
+            "tax_".strolower($category)=>$tax_per
+        ];   
+        $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'merch_id'=>$merch_id];
+        $getdata=$this->db->get_where('merch_count_shows',$check_where)->row();
+        if($getdata){
+            $raw_data["updated_at"]=date('Y-m-d H:i:s');
+            $raw_data["updated_by"]=$token_data->id;
+            $this->db->where($check_where)->update('merch_count_shows',$raw_data);
+        }else{
+            $raw_data["created_at"]=date('Y-m-d H:i:s');
+            $raw_data["created_by"]=$token_data->id;
+            $this->db->insert('merch_count_shows',$raw_data);
+        }          
+        $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
+    }
+    public function change_tax_method_post()
+    {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $tour_id=$_POST['tour_id'];
+        $show_id=$_POST['show_id'];
+        $tax_method=$_POST['tax_method'];
+        $raw_data=[
+            "tour_id"=>$tour_id,
+            "show_id"=>$show_id,
+            "tax_method"=>$tax_method
+        ];   
+        $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id];
+        $raw_data["updated_at"]=date('Y-m-d H:i:s');
+        $raw_data["updated_by"]=$token_data->id;
+        $this->db->where($check_where)->update('shows',$raw_data);          
         $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
     }
     public function add_stand_type_post()

@@ -124,13 +124,15 @@ class Api extends MY_REST_Controller
             if (file_exists('./uploads/merch_image/merch_1_'.$mer['id'].'.png')) {
                 $mer['image1']=base_url('uploads/merch_image/merch_1_'.$mer['id'].'.png');
             }else{
-                $mer['image1']=base_url('uploads/merch_image/default.png');
+                //$mer['image1']=base_url('uploads/merch_image/default.png');
+                $mer['image1']='';
             }
 
             if (file_exists('./uploads/merch_image/merch_2_'.$mer['id'].'.png')) {
                 $mer['image2']=base_url('uploads/merch_image/merch_2_'.$mer['id'].'.png');
             }else{
-                $mer['image2']=base_url('uploads/merch_image/default.png');
+                //$mer['image2']=base_url('uploads/merch_image/default.png');
+                $mer['image2']='';
             }
 
             $mer['total_merch']=100;
@@ -339,6 +341,7 @@ class Api extends MY_REST_Controller
             $child_list_data=[];
             $total_quantity_count=0;
             $l_trailer_inbound=$l_trailer_onhand=$l_total=$l_avg_cost=$sizes_list_api=$l_qty_id=$l_in_stock=$l_adds1=$l_adds2=$l_adds3=$l_comps=$l_out_stock=[];
+            $d_in_stock=$d_adds=$d_adds1=$d_adds2=$d_adds3=$d_comps=$d_out_stock=0;
             foreach ($child_data as $qty_child) {
                 $qty_sale_cost=$qty_child['sale_price'];
                 $total_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id']];
@@ -356,7 +359,6 @@ class Api extends MY_REST_Controller
                     $trailer_onhand_total=($trailer_onhand['total_quantity'] != '')? $trailer_onhand['total_quantity'] : 0;
                     $qty_id=($trailer_onhand['qty_id'] != '')? $trailer_onhand['qty_id'] : 0;
                 }
-                $d_in_stock=$d_adds=$d_adds1=$d_adds2=$d_adds3=$d_comps=$d_out_stock=0;
                 if($qty_id > 0){
                     $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'stand_type'=>$stand_type,'qty_id'=>$qty_id];
                     $getdata=$this->db->get_where('merch_counts',$check_where)->row();
@@ -397,13 +399,15 @@ class Api extends MY_REST_Controller
             if (file_exists('./uploads/merch_image/merch_1_'.$mer['id'].'.png')) {
                 $mer['image1']=base_url('uploads/merch_image/merch_1_'.$mer['id'].'.png');
             }else{
-                $mer['image1']=base_url('uploads/merch_image/default.png');
+                //$mer['image1']=base_url('uploads/merch_image/default.png');
+                $mer['image1']='';
             }
 
             if (file_exists('./uploads/merch_image/merch_2_'.$mer['id'].'.png')) {
                 $mer['image2']=base_url('uploads/merch_image/merch_2_'.$mer['id'].'.png');
             }else{
-                $mer['image2']=base_url('uploads/merch_image/default.png');
+                //$mer['image2']=base_url('uploads/merch_image/default.png');
+                $mer['image2']='';
             }
             
             
@@ -421,7 +425,7 @@ class Api extends MY_REST_Controller
             ];
             $mer['child_list']=$child_list_data;
             $merch_show_info=$this->db->select('*')->get_where('merch_count_shows',['tour_id'=>$tour_id,'show_id'=>$show_id,'merch_id'=>$mer['id']])->row_array();
-            if(count($merch_show_info) > 0){
+            if($merch_show_info && count($merch_show_info) > 0){
                 $mer['merch_tax']=$merch_show_info['tax_'.strtolower($mer['category'])];
             }else{
                 $mer['merch_tax']=$show_info['tax_'.strtolower($mer['category'])];

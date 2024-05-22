@@ -340,7 +340,7 @@ class Api extends MY_REST_Controller
             $child_data=$this->db->select('m.*,s.size_name')->join('sizes as s','s.id = m.size')->get_where('merch_child as m',['m.merch_id'=>$mer['id']])->result_array();
             $child_list_data=[];
             $total_quantity_count=0;
-            $l_trailer_inbound=$l_trailer_onhand=$l_total=$l_avg_cost=$sizes_list_api=$l_qty_id=$l_in_stock=$l_adds1=$l_adds2=$l_adds3=$l_comps=$l_out_stock=[];
+            $l_trailer_inbound=$l_trailer_onhand=$l_total=$l_avg_cost=$sizes_list_api=$l_qty_id=$l_in_stock=$l_adds=$l_adds1=$l_adds2=$l_adds3=$l_comps=$l_out_stock=[];
             $d_in_stock=$d_adds=$d_adds1=$d_adds2=$d_adds3=$d_comps=$d_out_stock=0;
             foreach ($child_data as $qty_child) {
                 $qty_sale_cost=$qty_child['sale_price'];

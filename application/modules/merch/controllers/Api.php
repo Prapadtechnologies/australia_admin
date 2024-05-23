@@ -164,39 +164,39 @@ class Api extends MY_REST_Controller
     public function merch_create_post()
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $POST = json_decode(file_get_contents("php://input"), TRUE);
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
         /*$this->form_validation->set_rules($this->users_address_model->rules);
         if ($this->form_validation->run() == false) {
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
         } else {*/
             $raw_data=[
                 "user_id"=>$token_data->id,
-                "product_name"=>$POST['product_name'],
-                "category"=>$POST['category'],
-                "category_id"=>$POST['category_id'],
-                "product_type"=>$POST['product_type'],
-                "gender"=>$POST['gender'],
-                "colour"=>$POST['colour'],
-                "sku"=>$POST['sku'],
-                "sale_price"=>$POST['sale_price'],
-                "cost"=>$POST['cost'],
-                "upc_1"=>$POST['upc_1'],
-                "upc_2"=>$POST['upc_2'],
-                "pre_order"=>$POST['pre_order'],
-                "release_date"=>$POST['release_date'],
-                "record_rep_mail"=>$POST['record_rep_mail'],
-                "supplier_name"=>$POST['supplier_name'],
-                "supplier_mobile"=>$POST['supplier_mobile'],
-                "supplier_mail"=>$POST['supplier_mail'],
-                "supplier_address"=>$POST['supplier_address'],
-                "printer_name"=>$POST['printer_name'],
-                "printer_mobile"=>$POST['printer_mobile'],
-                "printer_email"=>$POST['printer_email'],
-                "printer_address"=>$POST['printer_address'],
-                "printer_appartment"=>$POST['printer_appartment'],
-                "printer_city"=>$POST['printer_city'],
-                "printer_country"=>$POST['printer_country'],
-                "printer_zipcode"=>$POST['printer_zipcode'],
+                "product_name"=>$_POST['product_name'],
+                "category"=>$_POST['category'],
+                "category_id"=>$_POST['category_id'],
+                "product_type"=>$_POST['product_type'],
+                "gender"=>$_POST['gender'],
+                "colour"=>$_POST['colour'],
+                "sku"=>$_POST['sku'],
+                "sale_price"=>$_POST['sale_price'],
+                "cost"=>$_POST['cost'],
+                "upc_1"=>$_POST['upc_1'],
+                "upc_2"=>$_POST['upc_2'],
+                "pre_order"=>$_POST['pre_order'],
+                "release_date"=>$_POST['release_date'],
+                "record_rep_mail"=>$_POST['record_rep_mail'],
+                "supplier_name"=>$_POST['supplier_name'],
+                "supplier_mobile"=>$_POST['supplier_mobile'],
+                "supplier_mail"=>$_POST['supplier_mail'],
+                "supplier_address"=>$_POST['supplier_address'],
+                "printer_name"=>$_POST['printer_name'],
+                "printer_mobile"=>$_POST['printer_mobile'],
+                "printer_email"=>$_POST['printer_email'],
+                "printer_address"=>$_POST['printer_address'],
+                "printer_appartment"=>$_POST['printer_appartment'],
+                "printer_city"=>$_POST['printer_city'],
+                "printer_country"=>$_POST['printer_country'],
+                "printer_zipcode"=>$_POST['printer_zipcode'],
                 "created_at"=>date('Y-m-d H:i:s'),
                 "created_by"=>$token_data->id,
                 "updated_at"=>date('Y-m-d H:i:s'),
@@ -205,8 +205,8 @@ class Api extends MY_REST_Controller
             $this->db->insert('merch',$raw_data);
             $id = $this->db->insert_id();
             if($id){
-                if($raw_data['category'] == 'Apperal'){
-                    $child=$POST['child'];
+                if($raw_data['category'] == 'Apparel'){
+                    $child=$_POST['child'];
                     for($i=0; $i < count($child); $i++){
                         $child_data=[
                             "merch_id"=>$id,
@@ -248,7 +248,7 @@ class Api extends MY_REST_Controller
     }
     public function merchimage_post(){
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $POST = json_decode(file_get_contents("php://input"), TRUE);
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
         //print_r($this->input->post('image1'));die;
 
         if (!file_exists('./uploads/merch_image')) {
@@ -266,13 +266,13 @@ class Api extends MY_REST_Controller
     public function merch_quantity_create_post()
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $POST = json_decode(file_get_contents("php://input"), TRUE);
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
         /*$this->form_validation->set_rules($this->users_address_model->rules);
         if ($this->form_validation->run() == false) {
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
         } else {*/
-        for($i=0; $i < count($POST); $i++){
-            $qty_data=$POST[$i];
+        for($i=0; $i < count($_POST); $i++){
+            $qty_data=$_POST[$i];
             $raw_data=[
                 "merch_id"=>$qty_data['merch_id'],
                 "merch_child_id"=>$qty_data['merch_child_id'],
@@ -451,8 +451,8 @@ class Api extends MY_REST_Controller
     public function merch_count_create_post()
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $POST = json_decode(file_get_contents("php://input"), TRUE);
-        $qty_data=$POST;
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $qty_data=$_POST;
         $raw_data=[
             // "merch_id"=>$qty_data['merch_id'],
             // "merch_child_id"=>$qty_data['merch_child_id'],
@@ -565,14 +565,14 @@ class Api extends MY_REST_Controller
     public function counts_change_price_post()
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $POST = json_decode(file_get_contents("php://input"), TRUE);
-        $tour_id=$POST['tour_id'];
-        $show_id=$POST['show_id'];
-        $stand_type=$POST['stand_type'] ?? 1;
-        for($i=0; $i < count($POST['prices']); $i++){
-            $qty_id=$POST['prices'][$i]['qty_id'];
-            $cost=$POST['prices'][$i]['cost'];
-            $sale_price=$POST['prices'][$i]['sale_price'];
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $tour_id=$_POST['tour_id'];
+        $show_id=$_POST['show_id'];
+        $stand_type=$_POST['stand_type'] ?? 1;
+        for($i=0; $i < count($_POST['prices']); $i++){
+            $qty_id=$_POST['prices'][$i]['qty_id'];
+            $cost=$_POST['prices'][$i]['cost'];
+            $sale_price=$_POST['prices'][$i]['sale_price'];
             $raw_data=[
                 "tour_id"=>$tour_id,
                 "show_id"=>$show_id,
@@ -598,12 +598,12 @@ class Api extends MY_REST_Controller
     public function counts_change_tax_post()
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $POST = json_decode(file_get_contents("php://input"), TRUE);
-        $tour_id=$POST['tour_id'];
-        $show_id=$POST['show_id'];
-        $merch_id=$POST['merch_id'];
-        $category=$POST['category'];
-        $tax_per=$POST['tax_per'];
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $tour_id=$_POST['tour_id'];
+        $show_id=$_POST['show_id'];
+        $merch_id=$_POST['merch_id'];
+        $category=$_POST['category'];
+        $tax_per=$_POST['tax_per'];
         $raw_data=[
             "tour_id"=>$tour_id,
             "show_id"=>$show_id,
@@ -626,10 +626,10 @@ class Api extends MY_REST_Controller
     public function change_tax_method_post()
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $POST = json_decode(file_get_contents("php://input"), TRUE);
-        $tour_id=$POST['tour_id'];
-        $show_id=$POST['show_id'];
-        $tax_method=$POST['tax_method'];
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $tour_id=$_POST['tour_id'];
+        $show_id=$_POST['show_id'];
+        $tax_method=$_POST['tax_method'];
         $raw_data=[
             "tour_id"=>$tour_id,
             "show_id"=>$show_id,
@@ -644,10 +644,10 @@ class Api extends MY_REST_Controller
     public function add_stand_type_post()
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        $POST = json_decode(file_get_contents("php://input"), TRUE);
-        $tour_id=$POST['tour_id'];
-        $show_id=$POST['show_id'];
-        $stand_type=$POST['stand_type'];
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $tour_id=$_POST['tour_id'];
+        $show_id=$_POST['show_id'];
+        $stand_type=$_POST['stand_type'];
         $raw_data=[
             "tour_id"=>$tour_id,
             "show_id"=>$show_id,

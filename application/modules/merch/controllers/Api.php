@@ -631,8 +631,6 @@ class Api extends MY_REST_Controller
         $show_id=$_POST['show_id'];
         $tax_method=$_POST['tax_method'];
         $raw_data=[
-            "tour_id"=>$tour_id,
-            "show_id"=>$show_id,
             "tax_method"=>$tax_method
         ];   
         $check_where=['tour_id'=>$tour_id,'id'=>$show_id];

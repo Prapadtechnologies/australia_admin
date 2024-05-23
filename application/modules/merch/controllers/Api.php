@@ -315,7 +315,7 @@ class Api extends MY_REST_Controller
         
         $trailer_ids=$this->db->select('id')->get_where('trailer',['tour_id'=>$tour_id])->row_array();
         //echo $this->db->last_query();
-//print_r($trailer_ids);die;
+        //print_r($trailer_ids);die;
         if($trailer_ids != '' && count($trailer_ids) > 0){
             $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>'trailer','stock_id'=>$trailer_ids['id']])->result_array();
             //$merch_ids=array_unique($merch_ids);
@@ -635,7 +635,7 @@ class Api extends MY_REST_Controller
             "show_id"=>$show_id,
             "tax_method"=>$tax_method
         ];   
-        $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id];
+        $check_where=['tour_id'=>$tour_id,'id'=>$show_id];
         $raw_data["updated_at"]=date('Y-m-d H:i:s');
         $raw_data["updated_by"]=$token_data->id;
         $this->db->where($check_where)->update('shows',$raw_data);          

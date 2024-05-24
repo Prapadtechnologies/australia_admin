@@ -301,8 +301,43 @@ class Api extends MY_REST_Controller
                     }
             }   
         }
-         $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
+        $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
         // }
+    }
+    public function merch_move_inventory_post()
+    {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        for($i=0; $i < count($_POST); $i++){
+            $qty_data=$_POST[$i];
+            $raw_data=[
+                "merch_id"=>$qty_data['merch_id'],
+                "merch_child_id"=>$qty_data['merch_child_id'],
+                "stock_type"=>$qty_data['from_stock_type'],
+                "stock_id"=>$qty_data['from_stock_id'],
+                "quantity"=>$qty_data['quantity'],
+                "created_at"=>date('Y-m-d H:i:s'),
+                "created_by"=>$token_data->id
+            ];
+            $this->db->insert('merch_quantity_log',$raw_data);
+            $id = $this->db->insert_id();
+            if($id){
+                    $child_data=[
+                        "merch_id"=>$qty_data['merch_id'],
+                        "merch_child_id"=>$qty_data['merch_child_id'],
+                        "stock_type"=>$qty_data['stock_type'],
+                        "stock_id"=>$qty_data['stock_id']
+                    ];
+                    $getdata=$this->db->get_where('merch_quantity',$child_data)->row();
+                    if($getdata){
+                        $quantity=$getdata->quantity+$raw_data['quantity'];
+                        $this->db->where($child_data)->update('merch_quantity',['quantity'=>$quantity]);
+                    }else{
+                        $this->db->insert('merch_quantity',$raw_data);
+                    }
+            }   
+        }
+        $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
     }
     public function merch_counts_get()
     {
@@ -608,7 +643,7 @@ class Api extends MY_REST_Controller
             "tour_id"=>$tour_id,
             "show_id"=>$show_id,
             "merch_id"=>$merch_id,
-            "tax_".strolower($category)=>$tax_per
+            "tax_".strtolower($category)=>$tax_per
         ];   
         $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'merch_id'=>$merch_id];
         $getdata=$this->db->get_where('merch_count_shows',$check_where)->row();

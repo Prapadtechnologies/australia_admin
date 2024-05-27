@@ -623,7 +623,7 @@ class Api extends MY_REST_Controller
                 $final_cost=$qty_sale_cost;
                 //echo $mer['category'];
                 if($tax_method == 'exclusive'){
-                    $final_cost=($qty_sale_cost*$merch_tax)/100;
+                    $final_cost=$qty_sale_cost+($qty_sale_cost*$merch_tax)/100;
                 }
                 $final_in_stock=$d_in_stock*$final_cost;
                 $final_adds=($d_adds)*$final_cost;

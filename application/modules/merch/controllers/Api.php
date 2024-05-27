@@ -570,7 +570,7 @@ class Api extends MY_REST_Controller
         $o_gross_in_total=$o_gross_value_add_total=$o_gross_in_add_total=$o_comp_value_total=$o_gross_sales_man_stand=0;
         $m_gross_in_total=$m_gross_value_add_total=$m_gross_in_add_total=$m_comp_value_total=$m_gross_sales_man_stand=0;
         $final_total=0;
-        $all_stands['stand1']=0;
+        $all_stands['stand1']=['total_units'=>0,'gross_total'=>0];
         if(count($stand_type_list) > 0){
             for ($i=0; $i < count($stand_type_list); $i++) { 
                 $all_stands['stand'.$stand_type_list[$i]['stand_type']]=['total_units'=>0,'gross_total'=>0];
@@ -679,7 +679,7 @@ class Api extends MY_REST_Controller
         $main_gross_sales_man_stand=($a_gross_sales_man_stand+$o_gross_sales_man_stand+$m_gross_sales_man_stand);
         $data['total']   = ['title'=>'Total','data'=>[$main_gross_in_total,$main_gross_value_add_total,$main_gross_in_add_total,$main_comp_value_total,$main_gross_sales_man_stand]];
         $data['gross_total']=$main_gross_in_total+$main_gross_value_add_total+$main_gross_in_add_total+$main_comp_value_total+$main_gross_sales_man_stand;
-        $data['stands']=$all_stands;
+        $data['stands']=[$all_stands];
         $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     

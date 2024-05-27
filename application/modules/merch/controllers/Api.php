@@ -407,7 +407,7 @@ class Api extends MY_REST_Controller
             $this->db->join('sub_categories as s','s.id = m.product_type','left');
             $this->db->join('colours as c','c.id = m.colour','left');
             $this->db->order_by('m.updated_at','desc');
-            $this->db->where('m.user_id',$token_data->id);
+            //$this->db->where('m.user_id',$token_data->id);
             $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
             $merch = $this->db->get('merch as m')->result_array();
 
@@ -545,7 +545,7 @@ class Api extends MY_REST_Controller
             $this->db->join('sub_categories as s','s.id = m.product_type','left');
             $this->db->join('colours as c','c.id = m.colour','left');
             $this->db->order_by('m.updated_at','desc');
-            $this->db->where('m.user_id',$token_data->id);
+            //$this->db->where('m.user_id',$token_data->id);
             $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
             $merch = $this->db->get('merch as m')->result_array();
 
@@ -629,7 +629,6 @@ class Api extends MY_REST_Controller
                 $final_adds=($d_adds)*$final_cost;
                 $final_gross_in_add=$final_in_stock+$final_adds;
                 $final_comps=$d_comps*$final_cost;
-                $final_in_stock=$d_in_stock*$final_cost;
                 $final_sold_stock=$d_in_stock+$d_adds;
                 $total_sold_stock=($d_in_stock+$d_adds-$d_comps-$d_out_stock);
                 if($mer['category'] == 'Apparel'){

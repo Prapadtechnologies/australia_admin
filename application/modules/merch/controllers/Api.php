@@ -679,7 +679,7 @@ class Api extends MY_REST_Controller
         $main_gross_sales_man_stand=($a_gross_sales_man_stand+$o_gross_sales_man_stand+$m_gross_sales_man_stand);
         $data['total']   = ['title'=>'Total','data'=>[$main_gross_in_total,$main_gross_value_add_total,$main_gross_in_add_total,$main_comp_value_total,$main_gross_sales_man_stand]];
         $data['gross_total']=$main_gross_in_total+$main_gross_value_add_total+$main_gross_in_add_total+$main_comp_value_total+$main_gross_sales_man_stand;
-        $data['stands']=[$all_stands];
+        $data['stands']=$all_stands;
         $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
     

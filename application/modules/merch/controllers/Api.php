@@ -295,7 +295,7 @@ class Api extends MY_REST_Controller
                     $getdata=$this->db->get_where('merch_quantity',$child_data)->row();
                     if($getdata){
                         $quantity=$getdata->quantity+$raw_data['quantity'];
-                        $this->db->where($child_data)->update('merch_quantity',['quantity'=>$quantity]);
+                        $this->db->where($child_data)->update('merch_quantity',['quantity'=>$quantity,'updated_by'=>$token_data->id,'updated_at'=>date('Y-m-d H:i:s')]);
                     }else{
                         $this->db->insert('merch_quantity',$raw_data);
                     }
@@ -308,36 +308,85 @@ class Api extends MY_REST_Controller
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
-        for($i=0; $i < count($_POST); $i++){
-            $qty_data=$_POST[$i];
+        $inventory_type=$_POST['inventory_type'];
+        for($i=0; $i < count($_POST['inventory_data']); $i++){
+            $qty_data=$_POST['inventory_data'][$i];
             $raw_data=[
                 "merch_id"=>$qty_data['merch_id'],
                 "merch_child_id"=>$qty_data['merch_child_id'],
-                "stock_type"=>$qty_data['from_stock_type'],
-                "stock_id"=>$qty_data['from_stock_id'],
+                "inventory_type"=>$inventory_type,
+                "from_stock_type"=>$qty_data['from_stock_type'],
+                "from_stock_id"=>$qty_data['from_stock_id'],
+                "to_stock_type"=>$qty_data['to_stock_type'],
+                "to_stock_id"=>$qty_data['to_stock_id'],
                 "quantity"=>$qty_data['quantity'],
                 "created_at"=>date('Y-m-d H:i:s'),
                 "created_by"=>$token_data->id
             ];
-            $this->db->insert('merch_quantity_log',$raw_data);
-            $id = $this->db->insert_id();
-            if($id){
-                    $child_data=[
+            if($inventory_type == 'transfer'){
+                $raw_data['inventory_status']='processed';  
+            }
+            $this->db->insert('merch_move_inventory_log',$raw_data);
+            $move_id=$this->db->insert_id();
+            if($inventory_type == 'transfer'){
+                if($move_id > 0){
+                    $raw_qty_data=[[
                         "merch_id"=>$qty_data['merch_id'],
                         "merch_child_id"=>$qty_data['merch_child_id'],
-                        "stock_type"=>$qty_data['stock_type'],
-                        "stock_id"=>$qty_data['stock_id']
-                    ];
-                    $getdata=$this->db->get_where('merch_quantity',$child_data)->row();
-                    if($getdata){
-                        $quantity=$getdata->quantity+$raw_data['quantity'];
-                        $this->db->where($child_data)->update('merch_quantity',['quantity'=>$quantity]);
-                    }else{
-                        $this->db->insert('merch_quantity',$raw_data);
-                    }
-            }   
+                        "qty_type"=>'debit',
+                        "stock_type"=>$qty_data['from_stock_type'],
+                        "stock_id"=>$qty_data['from_stock_id'],
+                        "quantity"=>$qty_data['quantity'],
+                        "created_at"=>date('Y-m-d H:i:s'),
+                        "created_by"=>$token_data->id
+                    ],[
+                        "merch_id"=>$qty_data['merch_id'],
+                        "merch_child_id"=>$qty_data['merch_child_id'],
+                        "qty_type"=>'credit',
+                        "stock_type"=>$qty_data['to_stock_type'],
+                        "stock_id"=>$qty_data['to_stock_id'],
+                        "quantity"=>$qty_data['quantity'],
+                        "created_at"=>date('Y-m-d H:i:s'),
+                        "created_by"=>$token_data->id
+                    ]];
+                    $this->db->insert_batch('merch_quantity_log',$raw_qty_data);
+                    $id = $this->db->insert_id();
+                    if($id){
+                        $from_child_data=[
+                            "merch_id"=>$qty_data['merch_id'],
+                            "merch_child_id"=>$qty_data['merch_child_id'],
+                            "stock_type"=>$qty_data['from_stock_type'],
+                            "stock_id"=>$qty_data['from_stock_id']
+                        ];
+                        $to_child_data=[
+                            "merch_id"=>$qty_data['merch_id'],
+                            "merch_child_id"=>$qty_data['merch_child_id'],
+                            "stock_type"=>$qty_data['to_stock_type'],
+                            "stock_id"=>$qty_data['to_stock_id']
+                        ];
+                        $getdata=$this->db->get_where('merch_quantity',$from_child_data)->row();
+                        if($getdata){
+                            $quantity=$getdata->quantity-$raw_data['quantity'];
+                            $this->db->where($from_child_data)->update('merch_quantity',['quantity'=>$quantity]);
+                        }
+
+                        $to_getdata=$this->db->get_where('merch_quantity',$to_child_data)->row();
+                        if($to_getdata){
+                            $quantity=$to_getdata->quantity+$raw_data['quantity'];
+                            $this->db->where($from_child_data)->update('merch_quantity',['quantity'=>$quantity]);
+                        }else{
+                            $sale_price=$this->db->select('sale_price')->get_where('merch_child',['id'=>$raw_data['merch_child_id'],'id'=>$raw_data['merch_id']])->row_array();            
+                            $to_child_data['cost']=$sale_price['sale_price'];
+                            $to_child_data['quantity']=$raw_data['quantity'];            
+                            $to_child_data["created_at"]=date('Y-m-d H:i:s');
+                            $to_child_data["created_by"]=$token_data->id;
+                            $this->db->insert('merch_quantity',$raw_data);
+                        }
+                    }   
+                }
+            }
         }
-        $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
+        $this->set_response_simple($move_id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
     }
     public function merch_counts_get()
     {

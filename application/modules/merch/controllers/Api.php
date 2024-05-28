@@ -318,8 +318,8 @@ class Api extends MY_REST_Controller
                 "stock_id"=>$qty_data['from_stock_id']
             ];
             $getdata=$this->db->get_where('merch_quantity',$from_child_data)->row();
-            if($getdata != ''){
-                if($qty_data['quantity'] > $getdata['quantity']){
+            if($getdata){
+                if($qty_data['quantity'] > $getdata->quantity){
                     $this->set_response_simple(($data == FALSE) ? [] : $data, 'Please enter valid stock', REST_Controller::HTTP_OK, FALSE);
                     return true;
                 }

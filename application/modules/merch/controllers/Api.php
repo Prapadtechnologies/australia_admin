@@ -610,6 +610,7 @@ class Api extends MY_REST_Controller
                 $qty_sale_cost=$qty_child['sale_price'];
                 $total_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id']];
                 $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer','stock_id'=>$trailer_ids['id']];
+
                 $total_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$total_where)->row_array();
                 $trailer_onhand=$this->db->select('id as qty_id,cost as qty_sale_cost,quantity as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
 
@@ -622,57 +623,58 @@ class Api extends MY_REST_Controller
                     $trailer_onhand_total=($trailer_onhand['total_quantity'] != '')? $trailer_onhand['total_quantity'] : 0;
                     $qty_id=($trailer_onhand['qty_id'] != '')? $trailer_onhand['qty_id'] : 0;
                 }
-                if($qty_id > 0){
-                    $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'qty_id'=>$qty_id];
-                    $getdata=$this->db->get_where('merch_counts',$check_where)->row();
-                    if($getdata != ''){
-                        $qty_sale_cost=$getdata->sale_price;
-                        $stand_type_val=$getdata->stand_type;
+                $check_where=['tour_id'=>$tour_id,'show_id'=>$show_id,'qty_id'=>$qty_id];
+                $getdata_list=$this->db->get_where('merch_counts',$check_where)->result();
+                foreach ($getdata_list as $getdata) {
+                    if($qty_id > 0){
+                        if($getdata != ''){
+                            $qty_sale_cost=$getdata->sale_price;
+                            $stand_type_val=$getdata->stand_type;
+                        }
+                        $d_in_stock=$getdata->in_stock ?? 0;
+                        $d_adds1=$getdata->adds1 ?? 0;
+                        $d_adds2=$getdata->adds2 ?? 0;
+                        $d_adds3=$getdata->adds3 ?? 0;
+                        $d_adds=$d_adds1+$d_adds2+$d_adds3;
+                        $d_comps=$getdata->comps ?? 0;
+                        $d_out_stock=$getdata->out_stock ?? 0;
                     }
-                    $d_in_stock=$getdata->in_stock ?? 0;
-                    $d_adds1=$getdata->adds1 ?? 0;
-                    $d_adds2=$getdata->adds2 ?? 0;
-                    $d_adds3=$getdata->adds3 ?? 0;
-                    $d_adds=$d_adds1+$d_adds2+$d_adds3;
-                    $d_comps=$getdata->comps ?? 0;
-                    $d_out_stock=$getdata->out_stock ?? 0;
-                }
-                $qty_total=$total_onhand_total;
-                $total_quantity_count=$total_quantity_count+$qty_total;
-                $final_cost=$qty_sale_cost;
-                //echo $mer['category'];
-                if($tax_method == 'exclusive'){
-                    $final_cost=$qty_sale_cost+($qty_sale_cost*$merch_tax)/100;
-                }
-                $final_in_stock=$d_in_stock*$final_cost;
-                $final_adds=($d_adds)*$final_cost;
-                $final_gross_in_add=$final_in_stock+$final_adds;
-                $final_comps=$d_comps*$final_cost;
-                $final_sold_stock=$d_in_stock+$d_adds;
-                $total_sold_stock=($d_in_stock+$d_adds-$d_comps-$d_out_stock);
-                if($mer['category'] == 'Apparel'){
-                    $a_gross_in_total=$a_gross_in_total+$final_in_stock;
-                    $a_gross_value_add_total=$a_gross_value_add_total+$final_adds;
-                    $a_gross_in_add_total=$a_gross_in_add_total+$final_gross_in_add;
-                    $a_comp_value_total=$a_comp_value_total+$final_comps;
-                    $a_gross_sales_man_stand=0;
-                }elseif($mer['category'] == 'Music'){
-                    $m_gross_in_total=$m_gross_in_total+$final_in_stock;
-                    $m_gross_value_add_total=$m_gross_value_add_total+$final_adds;
-                    $m_gross_in_add_total=$m_gross_in_add_total+$final_gross_in_add;
-                    $m_comp_value_total=$m_comp_value_total+$final_comps;
-                    $m_gross_sales_man_stand=0;
-                }else{
-                    $o_gross_in_total=$o_gross_in_total+$final_in_stock;
-                    $o_gross_value_add_total=$o_gross_value_add_total+$final_adds;
-                    $o_gross_in_add_total=$o_gross_in_add_total+$final_gross_in_add;
-                    $o_comp_value_total=$o_comp_value_total+$final_comps;
-                    $o_gross_sales_man_stand=0;
-                }
+                    $qty_total=$total_onhand_total;
+                    $total_quantity_count=$total_quantity_count+$qty_total;
+                    $final_cost=$qty_sale_cost;
+                    //echo $mer['category'];
+                    if($tax_method == 'exclusive'){
+                        $final_cost=$qty_sale_cost+($qty_sale_cost*$merch_tax)/100;
+                    }
+                    $final_in_stock=$d_in_stock*$final_cost;
+                    $final_adds=($d_adds)*$final_cost;
+                    $final_gross_in_add=$final_in_stock+$final_adds;
+                    $final_comps=$d_comps*$final_cost;
+                    $final_sold_stock=$d_in_stock+$d_adds;
+                    $total_sold_stock=($d_in_stock+$d_adds-$d_comps-$d_out_stock);
+                    if($mer['category'] == 'Apparel'){
+                        $a_gross_in_total=$a_gross_in_total+$final_in_stock;
+                        $a_gross_value_add_total=$a_gross_value_add_total+$final_adds;
+                        $a_gross_in_add_total=$a_gross_in_add_total+$final_gross_in_add;
+                        $a_comp_value_total=$a_comp_value_total+$final_comps;
+                        $a_gross_sales_man_stand=0;
+                    }elseif($mer['category'] == 'Music'){
+                        $m_gross_in_total=$m_gross_in_total+$final_in_stock;
+                        $m_gross_value_add_total=$m_gross_value_add_total+$final_adds;
+                        $m_gross_in_add_total=$m_gross_in_add_total+$final_gross_in_add;
+                        $m_comp_value_total=$m_comp_value_total+$final_comps;
+                        $m_gross_sales_man_stand=0;
+                    }else{
+                        $o_gross_in_total=$o_gross_in_total+$final_in_stock;
+                        $o_gross_value_add_total=$o_gross_value_add_total+$final_adds;
+                        $o_gross_in_add_total=$o_gross_in_add_total+$final_gross_in_add;
+                        $o_comp_value_total=$o_comp_value_total+$final_comps;
+                        $o_gross_sales_man_stand=0;
+                    }
 
-                $all_stands['stand'.$stand_type_val]['total_units']=$all_stands['stand'.$stand_type_val]['total_units']+$total_sold_stock;
-                $all_stands['stand'.$stand_type_val]['gross_total']=$all_stands['stand'.$stand_type_val]['gross_total']+($total_sold_stock*$final_cost);
-
+                    $all_stands['stand'.$stand_type_val]['total_units']=$all_stands['stand'.$stand_type_val]['total_units']+$total_sold_stock;
+                    $all_stands['stand'.$stand_type_val]['gross_total']=$all_stands['stand'.$stand_type_val]['gross_total']+($total_sold_stock*$final_cost);
+                }
                 // echo $qty_sale_cost.", ";
                 // //echo $total_onhand_total.", ";
                 // echo $merch_tax.", ";

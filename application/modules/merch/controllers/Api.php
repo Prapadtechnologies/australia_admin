@@ -380,7 +380,7 @@ class Api extends MY_REST_Controller
                             $to_child_data['quantity']=$raw_data['quantity'];            
                             $to_child_data["created_at"]=date('Y-m-d H:i:s');
                             $to_child_data["created_by"]=$token_data->id;
-                            $this->db->insert('merch_quantity',$raw_data);
+                            $this->db->insert('merch_quantity',$to_child_data);
                         }
                     }   
                 }

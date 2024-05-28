@@ -311,6 +311,25 @@ class Api extends MY_REST_Controller
         $inventory_type=$_POST['inventory_type'];
         for($i=0; $i < count($_POST['inventory_data']); $i++){
             $qty_data=$_POST['inventory_data'][$i];
+            $from_child_data=[
+                "merch_id"=>$qty_data['merch_id'],
+                "merch_child_id"=>$qty_data['merch_child_id'],
+                "stock_type"=>$qty_data['from_stock_type'],
+                "stock_id"=>$qty_data['from_stock_id']
+            ];
+            $getdata=$this->db->get_where('merch_quantity',$from_child_data)->row();
+            if($getdata){
+                if($qty_data['quantity'] > $getdata['quantity']){
+                    $this->set_response_simple(($data == FALSE) ? [] : $data, 'Please enter valid stock', REST_Controller::HTTP_OK, FALSE);
+                    return true;
+                }
+            }else{
+                $this->set_response_simple(($data == FALSE) ? [] : $data, 'Please enter valid stock', REST_Controller::HTTP_OK, FALSE);
+                return true;
+            }
+        }
+        for($i=0; $i < count($_POST['inventory_data']); $i++){
+            $qty_data=$_POST['inventory_data'][$i];
             $raw_data=[
                 "merch_id"=>$qty_data['merch_id'],
                 "merch_child_id"=>$qty_data['merch_child_id'],

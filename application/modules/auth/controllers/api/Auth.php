@@ -207,9 +207,17 @@ class Auth extends MY_REST_Controller
                     $this->set_response_simple(NULL, 'Email not found', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
                 }
             }else{
-                //$forgotten = $this->ion_auth->forgotten_password($identity->{$this->config->item('identity', 'ion_auth')});
-
-                $email=$identity->{$this->config->item('identity', 'ion_auth')};
+                
+                $forgotten = $this->ion_auth->forgotten_password($identity->{$this->config->item('identity', 'ion_auth')});
+                if ($forgotten)
+                {
+                    $this->set_response_simple($user_unique_id, $this->ion_auth->messages(), REST_Controller::HTTP_OK, TRUE);
+                }
+                else
+                {
+                    $this->set_response_simple(NULL, $this->ion_auth->errors(), REST_Controller::HTTP_NO_CONTENT, FALSE);
+                }
+                /*$email=$identity->{$this->config->item('identity', 'ion_auth')};
                 $rand_code=rand(1000,9999);
                 $to=$email;
                 $message = $this->load->view($this->config->item('email_templates', 'ion_auth').'forgot_password_app.tpl.php', ['rand_code' => $rand_code,'identity'=>$email], true);
@@ -221,36 +229,58 @@ class Auth extends MY_REST_Controller
                     $this->set_response_simple($user_unique_id, 'Check your email for OTP', REST_Controller::HTTP_OK, TRUE);
                 } else {
                     $this->set_response_simple(NULL, 'Email not sent', REST_Controller::HTTP_NO_CONTENT, FALSE);
-                }
+                }*/
             }
         }
     }
     public function reset_password_post(){
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
-        $this->form_validation->set_rules('identity', 'Identity', 'trim|required');
-        $this->form_validation->set_rules('new', 'Password', 'required|min_length[' . $this->config->item('min_password_length', 'ion_auth') . ']|max_length[' . $this->config->item('max_password_length', 'ion_auth') . ']|matches[new_confirm]');
-        $this->form_validation->set_rules('new_confirm', 'Confirm Password', 'required');
-        if ($this->form_validation->run() == FALSE) {
-            $this->set_response(validation_errors(), REST_Controller::HTTP_NO_CONTENT, FALSE);
-        } else {
-            $identity_column = $this->config->item('identity', 'ion_auth');
-            $identity = $this->ion_auth->where($identity_column, $this->input->post('identity'))->users()->row();
-            if (empty($identity) || $identity == null) {
-                if ($this->config->item('identity', 'ion_auth') != 'email') {
-                    $this->set_response_simple(NULL, 'Identity not found', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
-                } else {
-                    $this->set_response_simple(NULL, 'Email not found', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
-                }
-            }else{
 
-                $email=$identity->{$this->config->item('identity', 'ion_auth')};
-                $change = $this->ion_auth->reset_password($email, $this->input->post('new'));
-                if ($change) {
-                    $this->set_response_simple($user_unique_id, $this->ion_auth->messages(), REST_Controller::HTTP_OK, TRUE);
-                } else {
-                    $this->set_response_simple(NULL, $this->ion_auth->errors(), REST_Controller::HTTP_NO_CONTENT, FALSE);
+        $code=$_POST['code'];
+        if ($code)
+        {
+            $user = $this->ion_auth->forgotten_password_check($code);
+        }else{
+            if(isset($_POST['id'])){
+                $user = $this->user_model->where('id', $_POST['id'])->as_object()->get();
+            }else{
+                $user = (object)['id' => $_GET['id']];
+                $this->user_model->update([
+                    'id' => $_GET['id'],
+                    'active' => 1
+                ], 'id');
+            }
+            
+        }
+
+        if ($user)
+        {
+            //$this->form_validation->set_rules('identity', 'Identity', 'trim|required');
+            $this->form_validation->set_rules('new', 'Password', 'required|min_length[' . $this->config->item('min_password_length', 'ion_auth') . ']|max_length[' . $this->config->item('max_password_length', 'ion_auth') . ']|matches[new_confirm]');
+            $this->form_validation->set_rules('new_confirm', 'Confirm Password', 'required');
+            if ($this->form_validation->run() == FALSE) {
+                $this->set_response(validation_errors(), REST_Controller::HTTP_NO_CONTENT, FALSE);
+            } else {
+                $identity_column = $this->config->item('identity', 'ion_auth');
+                $identity = $this->ion_auth->where($identity_column, $user->{$this->config->item('identity', 'ion_auth')})->users()->row();
+                if (empty($identity) || $identity == null) {
+                    if ($this->config->item('identity', 'ion_auth') != 'email') {
+                        $this->set_response_simple(NULL, 'Identity not found', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
+                    } else {
+                        $this->set_response_simple(NULL, 'Email not found', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
+                    }
+                }else{
+                    $email=$identity->{$this->config->item('identity', 'ion_auth')};
+                    $change = $this->ion_auth->reset_password($email, $this->input->post('new'));
+                    if ($change) {
+                        $this->set_response_simple($user->unique_id, $this->ion_auth->messages(), REST_Controller::HTTP_OK, TRUE);
+                    } else {
+                        $this->set_response_simple(NULL, $this->ion_auth->errors(), REST_Controller::HTTP_NO_CONTENT, FALSE);
+                    }
                 }
             }
+        }else{
+            $this->set_response_simple(NULL, $this->ion_auth->errors(), REST_Controller::HTTP_NO_CONTENT, FALSE);
         }
     }
 

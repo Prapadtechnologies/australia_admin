@@ -94,7 +94,9 @@ class Api extends MY_REST_Controller
                 "merchandise_company"=>$_POST['merchandise_company'],
                 "merchandise_contact_name"=>$_POST['merchandise_contact_name'],
                 "merchandise_contact_number"=>$_POST['merchandise_contact_number'],
+                "vend_fee"=>$_POST['vend_fee'],
                 "vend_percentage"=>$_POST['vend_percentage'],
+                "send_settlement"=>$_POST['send_settlement'],
                 "created_at"=>date('Y-m-d H:i:s'),
                 "created_by"=>$token_data->id
             ];
@@ -127,7 +129,9 @@ class Api extends MY_REST_Controller
             "merchandise_company" => isset($_POST['merchandise_company']) ? $_POST['merchandise_company'] : $existing_tour_data['merchandise_company'],
             "merchandise_contact_name" => isset($_POST['merchandise_contact_name']) ? $_POST['merchandise_contact_name'] : $existing_tour_data['merchandise_contact_name'],
             "merchandise_contact_number" => isset($_POST['merchandise_contact_number']) ? $_POST['merchandise_contact_number'] : $existing_tour_data['merchandise_contact_number'],
+            "vend_fee" => isset($_POST['vend_fee']) ? $_POST['vend_fee'] : $existing_tour_data['vend_fee'],
             "vend_percentage" => isset($_POST['vend_percentage']) ? $_POST['vend_percentage'] : $existing_tour_data['vend_percentage'],
+            "send_settlement" => isset($_POST['send_settlement']) ? $_POST['send_settlement'] : $existing_tour_data['send_settlement'],
             "updated_at" => date('Y-m-d H:i:s'),
             "updated_by" => $token_data->id 
         );

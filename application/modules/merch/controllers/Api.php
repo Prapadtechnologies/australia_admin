@@ -58,6 +58,7 @@ class Api extends MY_REST_Controller
         $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $stock_type=$this->input->get('stock_type');
         $stock_id=$this->input->get('stock_id');
+        $merch_category=$this->input->get('merch_category');
         $merch_ids=[];
         $data=[];
         if($stock_type != '' && $stock_id != ''){
@@ -67,6 +68,9 @@ class Api extends MY_REST_Controller
                 $this->db->join('sub_categories as s','s.id = m.product_type','left');
                 $this->db->join('colours as c','c.id = m.colour','left');
                 $this->db->order_by('m.updated_at','desc');
+                if($merch_category != '' && strtolower($merch_category) != 'all'){
+                    $this->db->where('m.category',$merch_category);
+                }
                 $this->db->where('m.user_id',$token_data->id);
                 $this->db->where_in('m.id',array_column($merch_ids,'merch_id'));
                 $merch = $this->db->get('merch as m')->result_array();
@@ -78,6 +82,9 @@ class Api extends MY_REST_Controller
             $this->db->join('sub_categories as s','s.id = m.product_type','left');
             $this->db->join('colours as c','c.id = m.colour','left');
             $this->db->order_by('m.updated_at','desc');
+            if($merch_category != '' && strtolower($merch_category) != 'all'){
+                $this->db->where('m.category',$merch_category);
+            }
             $this->db->where('m.user_id',$token_data->id);
             $merch = $this->db->get('merch as m')->result_array();
         }

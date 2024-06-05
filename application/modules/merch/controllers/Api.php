@@ -539,7 +539,22 @@ class Api extends MY_REST_Controller
             $merch = $this->db->get('merch as m')->result_array();
 
             $stand_type_list=$this->db->select('id,stand_type')->get_where('merch_count_stands',['tour_id'=>$tour_id,'show_id'=>$show_id])->result_array();
-            $data['stand_type_list']=$stand_type_list;
+            if(count($stand_type_list) > 0){
+                $data['stand_type_list']=$stand_type_list;
+            }else{
+                $stand_type_list=$this->db->insert('merch_count_stands',
+                    [
+                        'tour_id'=>$tour_id,
+                        'show_id'=>$show_id,
+                        'stand_type'=>1,
+                        "created_at"=>date('Y-m-d H:i:s'),
+                        "created_by"=>$token_data->id,
+                        "updated_at"=>date('Y-m-d H:i:s'),
+                        "updated_by"=>$token_data->id
+                    ]
+                );
+                $data['stand_type_list']=$stand_type_list=$this->db->select('id,stand_type')->get_where('merch_count_stands',['tour_id'=>$tour_id,'show_id'=>$show_id])->result_array();
+            }
             //$show_info=$this->db->select('*')->get_where('merch_count_shows',['tour_id'=>$tour_id,'show_id'=>$show_id])->row_array();
             //if(count($show_info) > 0){
             $show_info=$this->db->select('*')->get_where('shows',['tour_id'=>$tour_id,'id'=>$show_id])->row_array();

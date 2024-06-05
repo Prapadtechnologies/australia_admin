@@ -56,6 +56,7 @@ class Api extends MY_REST_Controller
     public function merch_list_get()
     {
         $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+
         $stock_type=$this->input->get('stock_type');
         $stock_id=$this->input->get('stock_id');
         $merch_category=$this->input->get('merch_category');
@@ -238,6 +239,106 @@ class Api extends MY_REST_Controller
                         "created_by"=>$token_data->id
                     ];
                     $this->db->insert('merch_child',$child_data);
+                }
+                if (!file_exists('./uploads/merch_image')) {
+                    mkdir('./uploads/merch_image', 0777, true);
+                }
+                if($this->input->post('image1')){
+                    file_put_contents("./uploads/merch_image/merch_1_".$id.".png", base64_decode($this->input->post('image1')));
+                }
+                if($this->input->post('image2')){
+                    file_put_contents("./uploads/merch_image/merch_2_".$id.".png", base64_decode($this->input->post('image2')));
+                }
+
+            }
+            $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
+        // }
+    }
+    public function merch_edit_post($merch_id)
+    {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $existing_merch_data = $this->db->get_where('merch', array('id' => $merch_id))->row_array();
+
+        if (!$existing_merch_data) {
+            $this->set_response_simple("Merch not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            return;
+        }
+        /*$this->form_validation->set_rules($this->users_address_model->rules);
+        if ($this->form_validation->run() == false) {
+            $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
+        } else {*/
+            $raw_data=[
+                "product_name"=>$_POST['product_name'],
+                "category"=>$_POST['category'],
+                "category_id"=>$_POST['category_id'],
+                "product_type"=>$_POST['product_type'],
+                "gender"=>$_POST['gender'],
+                "colour"=>$_POST['colour'],
+                "sku"=>$_POST['sku'],
+                "sale_price"=>$_POST['sale_price'],
+                "cost"=>$_POST['cost'],
+                "upc_1"=>$_POST['upc_1'],
+                "upc_2"=>$_POST['upc_2'],
+                "pre_order"=>$_POST['pre_order'],
+                "release_date"=>$_POST['release_date'],
+                "record_rep_mail"=>$_POST['record_rep_mail'],
+                "supplier_name"=>$_POST['supplier_name'],
+                "supplier_mobile"=>$_POST['supplier_mobile'],
+                "supplier_mail"=>$_POST['supplier_mail'],
+                "supplier_address"=>$_POST['supplier_address'],
+                "printer_name"=>$_POST['printer_name'],
+                "printer_mobile"=>$_POST['printer_mobile'],
+                "printer_email"=>$_POST['printer_email'],
+                "printer_address"=>$_POST['printer_address'],
+                "printer_appartment"=>$_POST['printer_appartment'],
+                "printer_city"=>$_POST['printer_city'],
+                "printer_country"=>$_POST['printer_country'],
+                "printer_zipcode"=>$_POST['printer_zipcode'],
+                "updated_at"=>date('Y-m-d H:i:s'),
+                "updated_by"=>$token_data->id
+            ];
+            $this->db->where('id',$merch_id)->update('merch',$raw_data);
+            $id = $this->db->affected_rows();
+            if($id > 0){
+                if($raw_data['category'] == 'Apparel'){
+                    $child=$_POST['child'];
+                    for($i=0; $i < count($child); $i++){
+                        $child_data=[
+                            "merch_id"=>$id,
+                            "size_type"=>$child[$i]['size_type'],
+                            "size"=>$child[$i]['size'],
+                            "sku_code"=>$child[$i]['sku_code'],
+                            "product_code"=>$child[$i]['product_code'],
+                            "sale_price"=>$child[$i]['sale_price'],
+                            "cost"=>$child[$i]['cost']
+                        ];
+                        if($child[$i]['child_id'] != ''){
+                            $child_data["updated_at"]=date('Y-m-d H:i:s');
+                            $child_data["updated_by"]=$token_data->id;
+                            $this->db->where('id',$child[$i]['child_id'])->update('merch_child',$child_data);
+                        }else{
+                            $child_data["created_at"]=date('Y-m-d H:i:s');
+                            $child_data["created_by"]=$token_data->id;
+                            $this->db->insert('merch_child',$child_data);   
+                        }
+                    }
+                }else{
+                    $child_data=[
+                        "merch_id"=>$id,
+                        "sku_code"=>$raw_data['sku'],
+                        "sale_price"=>$raw_data['sale_price'],
+                        "cost"=>$raw_data['cost'],
+                    ];
+                    if($child[$i]['child_id'] != ''){
+                        $child_data["updated_at"]=date('Y-m-d H:i:s');
+                        $child_data["updated_by"]=$token_data->id;
+                        $this->db->where('id',$child[$i]['child_id'])->update('merch_child',$child_data);
+                    }else{
+                        $child_data["created_at"]=date('Y-m-d H:i:s');
+                        $child_data["created_by"]=$token_data->id;
+                        $this->db->insert('merch_child',$child_data);   
+                    }
                 }
                 if (!file_exists('./uploads/merch_image')) {
                     mkdir('./uploads/merch_image', 0777, true);

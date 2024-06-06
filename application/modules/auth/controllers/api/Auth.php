@@ -237,25 +237,17 @@ class Auth extends MY_REST_Controller
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
 
         $code=$_POST['code'];
+        if($code == ''){
+            $this->set_response_simple(null, 'Invalid User', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
+            return;
+        }
         if ($code)
         {
             $user = $this->ion_auth->forgotten_password_check($code);
-        }else{
-            if(isset($_POST['id'])){
-                $user = $this->user_model->where('id', $_POST['id'])->as_object()->get();
-            }else{
-                $user = (object)['id' => $_GET['id']];
-                $this->user_model->update([
-                    'id' => $_GET['id'],
-                    'active' => 1
-                ], 'id');
-            }
-            
         }
 
         if ($user)
         {
-            //$this->form_validation->set_rules('identity', 'Identity', 'trim|required');
             $this->form_validation->set_rules('new', 'Password', 'required|min_length[' . $this->config->item('min_password_length', 'ion_auth') . ']|max_length[' . $this->config->item('max_password_length', 'ion_auth') . ']|matches[new_confirm]');
             $this->form_validation->set_rules('new_confirm', 'Confirm Password', 'required');
             if ($this->form_validation->run() == FALSE) {
@@ -280,7 +272,7 @@ class Auth extends MY_REST_Controller
                 }
             }
         }else{
-            $this->set_response_simple(NULL, $this->ion_auth->errors(), REST_Controller::HTTP_NO_CONTENT, FALSE);
+            $this->set_response_simple(null, 'Invalid User', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
         }
     }
 

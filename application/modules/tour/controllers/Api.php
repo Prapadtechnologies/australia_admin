@@ -33,6 +33,7 @@ class Api extends MY_REST_Controller
     {
         $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         check_completed_shows();
+        defaultdataload($token_data);
         //$where="lower('name') like '%".strtolower($target)."%'";
         $status=$this->input->get('status');
         $upcoming = $this->db->select('*')

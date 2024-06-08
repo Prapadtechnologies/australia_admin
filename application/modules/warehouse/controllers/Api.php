@@ -66,7 +66,9 @@ class Api extends MY_REST_Controller
                 "phone_number"=>$_POST['phone_number'],
                 "address"=>$_POST['address'],
                 "created_at"=>date('Y-m-d H:i:s'),
-                "created_by"=>$token_data->id
+                "created_by"=>$token_data->id,
+                "updated_at" => date('Y-m-d H:i:s'),
+                "updated_by" => $token_data->id
             ];
             $id = $this->db->insert('warehouse',$raw_data);
             $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);

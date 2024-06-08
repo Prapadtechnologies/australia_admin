@@ -56,7 +56,7 @@ class Api extends MY_REST_Controller
     public function merch_list_get()
     {
         $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-
+        defaultdataload($token_data);
         $stock_type=$this->input->get('stock_type');
         $stock_id=$this->input->get('stock_id');
         $merch_category=$this->input->get('merch_category');
@@ -211,7 +211,9 @@ class Api extends MY_REST_Controller
                 "updated_by"=>$token_data->id
             ];
             $this->db->insert('merch',$raw_data);
+            
             $id = $this->db->insert_id();
+            $warehouse_default=$this->db->get('warehouse',['warehouse_name'=>'Default Warehouse','user_id'=>$token_data->id])->row_array();
             if($id){
                 if($raw_data['category'] == 'Apparel'){
                     $child=$_POST['child'];
@@ -228,6 +230,24 @@ class Api extends MY_REST_Controller
                             "created_by"=>$token_data->id
                         ];
                         $this->db->insert('merch_child',$child_data);
+                        $child_id = $this->db->insert_id();
+                        if($child_id){
+                            $raw_data_new=[
+                                "merch_id"=>$id,
+                                "merch_child_id"=>$child_id,
+                                "stock_type"=>'warehouse',
+                                "stock_id"=>$warehouse_default['id'],
+                                "quantity"=>0,
+                                "cost"=>$child[$i]['sale_price'],
+                                "created_at"=>date('Y-m-d H:i:s'),
+                                "created_by"=>$token_data->id
+                            ];
+                            $this->db->insert('merch_quantity_log',$raw_data_new);
+                            $qty_id = $this->db->insert_id();
+                            if($qty_id){
+                                $this->db->insert('merch_quantity',$raw_data_new);
+                            }
+                        }
                     }
                 }else{
                     $child_data=[
@@ -239,6 +259,24 @@ class Api extends MY_REST_Controller
                         "created_by"=>$token_data->id
                     ];
                     $this->db->insert('merch_child',$child_data);
+                    $child_id = $this->db->insert_id();
+                    if($child_id){
+                        $raw_data_new=[
+                            "merch_id"=>$id,
+                            "merch_child_id"=>$child_id,
+                            "stock_type"=>'warehouse',
+                            "stock_id"=>$warehouse_default['id'],
+                            "quantity"=>0,
+                            "cost"=>$raw_data['sale_price'],
+                            "created_at"=>date('Y-m-d H:i:s'),
+                            "created_by"=>$token_data->id
+                        ];
+                        $this->db->insert('merch_quantity_log',$raw_data_new);
+                        $qty_id = $this->db->insert_id();
+                        if($qty_id){
+                            $this->db->insert('merch_quantity',$raw_data_new);
+                        }
+                    }
                 }
                 if (!file_exists('./uploads/merch_image')) {
                     mkdir('./uploads/merch_image', 0777, true);

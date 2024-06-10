@@ -101,7 +101,11 @@ class Api extends MY_REST_Controller
                 "created_at"=>date('Y-m-d H:i:s'),
                 "created_by"=>$token_data->id
             ];
-            $id = $this->db->insert('tour',$raw_data);
+            $this->db->insert('tour',$raw_data);
+            $id = $this->db->insert_id();
+            if($id > 0){
+                tourdefaulttrailer($token_data,$id);
+            }
             $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
         // }
     }

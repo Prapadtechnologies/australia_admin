@@ -315,18 +315,28 @@ function check_completed_shows()
     return TRUE;
 }
 
-
 function defaultdataload($token_data)
 {    
     $CI =&  get_instance();
-    $warehouse_default=$CI->db->get_where('warehouse',['warehouse_name'=>'Default Warehouse','user_id'=>$token_data->id])->row_array();
-    if(count($warehouse_default) == 0){
+    $warehouse_default=$CI->db->get_where('warehouse',['warehouse_name'=>'Default Warehouse','user_id'=>$token_data->id])->num_rows();
+    if($warehouse_default == 0){
         $CI->db->insert('warehouse',['warehouse_name'=>'Default Warehouse','user_id'=>$token_data->id,"created_at"=>date('Y-m-d H:i:s'),"created_by"=>$token_data->id,"updated_at" => date('Y-m-d H:i:s'),"updated_by" => $token_data->id]);
     }
 
-    $trailer_default=$CI->db->get_where('trailer',['trailer_name'=>'Default Trailer','user_id'=>$token_data->id])->row_array();
-    if(count($trailer_default) == 0){
+    $trailer_default=$CI->db->get_where('trailer',['trailer_name'=>'Default Trailer','user_id'=>$token_data->id])->num_rows();
+    if($trailer_default == 0){
         $CI->db->insert('trailer',['trailer_name'=>'Default Trailer','user_id'=>$token_data->id,"created_at"=>date('Y-m-d H:i:s'),"created_by"=>$token_data->id,"updated_at" => date('Y-m-d H:i:s'),"updated_by" => $token_data->id]);
+    }
+    return true;
+}
+
+function tourdefaulttrailer($token_data,$tour_id)
+{    
+    $CI =&  get_instance();
+    $trailer_default=$CI->db->get_where('trailer',['trailer_name'=>'Default Trailer','user_id'=>$token_data->id]);
+    if($trailer_default->num_rows() > 0){
+        $trailer_id=$trailer_default->row()->id;
+        $CI->db->where('id',$trailer_id)->update('trailer',['tour_id'=>$tour_id,"updated_at" => date('Y-m-d H:i:s'),"updated_by" => $token_data->id]);
     }
     return true;
 }

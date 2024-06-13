@@ -25,17 +25,39 @@ class Api extends MY_REST_Controller
         $target = $_GET['q'];
         if (strlen($target) > 0) {
             $where="lower('name') like '%".strtolower($target)."%'";
-            $data = $this->db->select('id, name, addressLineOne,capacity')
+            $data = $this->db->select('*')
                     ->like('name', $target, 'both')
                     ->or_like('addressLineOne', $target, 'both')
                     ->get('venue_address')
                     ->result_array();
         }else{
-            $data = $this->db->select('id, name, addressLineOne,capacity')
+            $data = $this->db->select('*')
                     ->get('venue_address')
                     ->result_array();
         }
         $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+    }
+
+    public function venue_create_get()
+    {
+        $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $raw_data=[
+                "user_id"=>$token_data->id,
+                "venue_name"=>$_POST['venue_name'],
+                "venue_number"=>$_POST['venue_number'],
+                "capacity"=>$_POST['unit'],
+                "street"=>$_POST['street'],
+                "city"=>$_POST['city'],
+                "state"=>$_POST['state'],
+                "zipcode"=>$_POST['zipcode'],
+                "created_at"=>date('Y-m-d H:i:s'),
+                "created_by"=>$token_data->id
+                "updated_at"=>date('Y-m-d H:i:s'),
+                "updated_by"=>$token_data->id
+            ];
+            $id = $this->db->insert('venue_address',$raw_data);
+            $this->set_response_simple($id, 'Success..!', REST_Controller::HTTP_CREATED, TRUE);
     }
 
     public function shows_list_get($tour_id='')

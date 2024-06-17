@@ -78,6 +78,12 @@ class Api extends MY_REST_Controller
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+        $check_tour=$this->db->get_where('tour',['tour_name'=>$_POST['tour_name'],'user_id'=>$token_data->id])->num_rows();
+        if($check_tour == 0){
+            $this->set_response_simple("Tour already created", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            return;
+        }
         /*$this->form_validation->set_rules($this->users_address_model->rules);
         if ($this->form_validation->run() == false) {
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);

@@ -173,6 +173,11 @@ class Api extends MY_REST_Controller
     {
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
+        $check_product=$this->db->get_where('merch',['product_name'=>$_POST['product_name'],'user_id'=>$token_data->id])->num_rows();
+        if($check_product == 0){
+            $this->set_response_simple("Product already created", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            return;
+        }
         /*$this->form_validation->set_rules($this->users_address_model->rules);
         if ($this->form_validation->run() == false) {
             $this->set_response_simple(validation_errors(), 'Validation Error', REST_Controller::HTTP_NON_AUTHORITATIVE_INFORMATION, FALSE);
@@ -213,7 +218,7 @@ class Api extends MY_REST_Controller
             $this->db->insert('merch',$raw_data);
             
             $id = $this->db->insert_id();
-            $warehouse_default=$this->db->get('warehouse',['warehouse_name'=>'Default Warehouse','user_id'=>$token_data->id])->row_array();
+            $warehouse_default=$this->db->get_where('warehouse',['warehouse_name'=>'Default Warehouse','user_id'=>$token_data->id])->row_array();
             if($id){
                 if($raw_data['category'] == 'Apparel'){
                     $child=$_POST['child'];

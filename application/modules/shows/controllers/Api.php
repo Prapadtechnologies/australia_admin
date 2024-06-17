@@ -38,21 +38,22 @@ class Api extends MY_REST_Controller
         $this->set_response_simple(($data == FALSE) ? [] : $data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
     }
 
-    public function venue_create_get()
+    public function venue_create_post()
     {
         $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
         $raw_data=[
                 "user_id"=>$token_data->id,
-                "venue_name"=>$_POST['venue_name'],
+                "name"=>$_POST['venue_name'],
                 "venue_number"=>$_POST['venue_number'],
+                "addressLineOne"=>$_POST['street'].' ,'.$_POST['city'].' ,'.$_POST['state'].' ,'.$_POST['zipcode'],
                 "capacity"=>$_POST['unit'],
                 "street"=>$_POST['street'],
                 "city"=>$_POST['city'],
                 "state"=>$_POST['state'],
                 "zipcode"=>$_POST['zipcode'],
                 "created_at"=>date('Y-m-d H:i:s'),
-                "created_by"=>$token_data->id
+                "created_by"=>$token_data->id,
                 "updated_at"=>date('Y-m-d H:i:s'),
                 "updated_by"=>$token_data->id
             ];
@@ -189,6 +190,31 @@ class Api extends MY_REST_Controller
         }
         $raw_data=[
             "note"=>$_POST['note'],
+            "updated_at"=>date('Y-m-d H:i:s'),
+            "updated_by"=>$token_data->id
+        ];
+        $id = $this->db->where('id',$show_id)->update('shows',$raw_data);
+        if ($this->db->affected_rows() > 0) {
+            $updated_show_data = $this->db->get_where('shows', array('id' => $show_id))->row_array();  
+            $this->set_response_simple(($updated_show_data == FALSE) ? [] : $updated_show_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
+        } else {
+            $this->set_response_simple("Failed to Edit the Show", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+        }
+    }
+
+    public function ticketsale_update_post($show_id)
+    {
+        $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        $_POST = json_decode(file_get_contents("php://input"), TRUE);
+
+        $existing_show_data = $this->db->get_where('shows', array('id' => $show_id))->row_array();
+
+        if (!$existing_show_data) {
+            $this->set_response_simple("Show not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            return;
+        }
+        $raw_data=[
+            "total_tickets"=>$_POST['total_tickets'],
             "updated_at"=>date('Y-m-d H:i:s'),
             "updated_by"=>$token_data->id
         ];

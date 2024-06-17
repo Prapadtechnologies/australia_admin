@@ -46,7 +46,7 @@ class Api extends MY_REST_Controller
                 "user_id"=>$token_data->id,
                 "name"=>$_POST['venue_name'],
                 "venue_number"=>$_POST['venue_number'],
-                "addressLineOne"=>$_POST['street'].' ,'.$_POST['city'].' ,'.$_POST['state'].' ,'.$_POST['zipcode'],
+                "addressLineOne"=>$_POST['street'].', '.$_POST['city'].', '.$_POST['state'].', '.$_POST['zipcode'],
                 "capacity"=>$_POST['unit'],
                 "street"=>$_POST['street'],
                 "city"=>$_POST['city'],

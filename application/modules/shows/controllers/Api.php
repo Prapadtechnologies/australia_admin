@@ -185,7 +185,7 @@ class Api extends MY_REST_Controller
         $existing_show_data = $this->db->get_where('shows', array('id' => $show_id))->row_array();
 
         if (!$existing_show_data) {
-            $this->set_response_simple("Show not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            $this->set_response_simple("Show not found", 'Error..!', REST_Controller::HTTP_OK, FALSE);
             return;
         }
         $raw_data=[
@@ -210,7 +210,7 @@ class Api extends MY_REST_Controller
         $existing_show_data = $this->db->get_where('shows', array('id' => $show_id))->row_array();
 
         if (!$existing_show_data) {
-            $this->set_response_simple("Show not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            $this->set_response_simple("Show not found", 'Error..!', REST_Controller::HTTP_OK, FALSE);
             return;
         }
         $raw_data=[
@@ -235,7 +235,7 @@ class Api extends MY_REST_Controller
         $existing_show_data = $this->db->get_where('shows', array('id' => $show_id))->row_array();
 
         if (!$existing_show_data) {
-            $this->set_response_simple("Show not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            $this->set_response_simple("Show not found", 'Error..!', REST_Controller::HTTP_OK, FALSE);
             return;
         }
 

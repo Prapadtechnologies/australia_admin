@@ -174,8 +174,8 @@ class Api extends MY_REST_Controller
         $token_data = $this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
         $check_product=$this->db->get_where('merch',['product_name'=>$_POST['product_name'],'user_id'=>$token_data->id])->num_rows();
-        if($check_product == 0){
-            $this->set_response_simple("Product already created", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+        if($check_product > 0){
+            $this->set_response_simple("Product already created", 'Error..!', REST_Controller::HTTP_OK, FALSE);
             return;
         }
         /*$this->form_validation->set_rules($this->users_address_model->rules);
@@ -304,7 +304,7 @@ class Api extends MY_REST_Controller
         $existing_merch_data = $this->db->get_where('merch', array('id' => $merch_id))->row_array();
 
         if (!$existing_merch_data) {
-            $this->set_response_simple("Merch not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            $this->set_response_simple("Merch not found", 'Error..!', REST_Controller::HTTP_OK, FALSE);
             return;
         }
         /*$this->form_validation->set_rules($this->users_address_model->rules);

@@ -80,8 +80,8 @@ class Api extends MY_REST_Controller
         $_POST = json_decode(file_get_contents("php://input"), TRUE);
 
         $check_tour=$this->db->get_where('tour',['tour_name'=>$_POST['tour_name'],'user_id'=>$token_data->id])->num_rows();
-        if($check_tour == 0){
-            $this->set_response_simple("Tour already created", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+        if($check_tour > 0){
+            $this->set_response_simple("Tour already created", 'Error..!', REST_Controller::HTTP_OK, FALSE);
             return;
         }
         /*$this->form_validation->set_rules($this->users_address_model->rules);
@@ -126,7 +126,7 @@ class Api extends MY_REST_Controller
         $existing_tour_data = $this->db->get_where('tour', array('id' => $tour_id))->row_array();
 
         if (!$existing_tour_data) {
-            $this->set_response_simple("Tour not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            $this->set_response_simple("Tour not found", 'Error..!', REST_Controller::HTTP_OK, FALSE);
             return;
         }
 
@@ -157,7 +157,7 @@ class Api extends MY_REST_Controller
             $this->set_response_simple(($existing_tour_data == FALSE) ? [] : $existing_tour_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
             //$this->response($existing_tour_data, REST_Controller::HTTP_OK);
         } else {
-            $this->set_response_simple("Failed to update tour", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+            $this->set_response_simple("Failed to update tour", 'Error..!', REST_Controller::HTTP_OK, FALSE);
         }
     }
 
@@ -171,7 +171,7 @@ class Api extends MY_REST_Controller
         $existing_tour_data = $this->db->get_where('tour', array('id' => $tour_id))->row_array();
 
         if (!$existing_tour_data) {
-            $this->set_response_simple("Tour not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            $this->set_response_simple("Tour not found", 'Error..!', REST_Controller::HTTP_OK, FALSE);
             return;
         }
 
@@ -192,7 +192,7 @@ class Api extends MY_REST_Controller
             $this->set_response_simple(($existing_tour_data == FALSE) ? [] : $existing_tour_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
             //$this->response($existing_tour_data, REST_Controller::HTTP_OK);
         } else {
-            $this->set_response_simple("Failed to Cancel tour", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+            $this->set_response_simple("Failed to Cancel tour", 'Error..!', REST_Controller::HTTP_OK, FALSE);
         }
     }
 }

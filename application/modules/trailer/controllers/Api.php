@@ -65,7 +65,7 @@ class Api extends MY_REST_Controller
         $existing_trailer_data = $this->db->get_where('trailer', array('id' => $trailer_id))->row_array();
 
         if (!$existing_trailer_data) {
-            $this->set_response_simple("Trailer not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            $this->set_response_simple("Trailer not found", 'Error..!', REST_Controller::HTTP_OK, FALSE);
             return;
         }
 
@@ -92,7 +92,7 @@ class Api extends MY_REST_Controller
             $this->set_response_simple(($updated_trailer_data == FALSE) ? [] : $updated_trailer_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
             //$this->response($updated_trailer_data, REST_Controller::HTTP_OK);
         } else {
-            $this->set_response_simple("Failed to update trailer", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+            $this->set_response_simple("Failed to update trailer", 'Error..!', REST_Controller::HTTP_OK, FALSE);
         }
     }
 
@@ -106,7 +106,7 @@ class Api extends MY_REST_Controller
         $existing_trailer_data = $this->db->get_where('trailer', array('id' => $id))->row_array();
 
         if (!$existing_trailer_data) {
-            $this->set_response_simple("Trailer not found", 'Error..!', REST_Controller::HTTP_NOT_FOUND, FALSE);
+            $this->set_response_simple("Trailer not found", 'Error..!', REST_Controller::HTTP_OK, FALSE);
             return;
         }
 
@@ -127,7 +127,7 @@ class Api extends MY_REST_Controller
             $this->set_response_simple(($existing_trailer_data == FALSE) ? [] : $existing_trailer_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
             //$this->response($existing_trailer_data, REST_Controller::HTTP_OK);
         } else {
-            $this->set_response_simple("Failed to delete trailer", 'Error..!', REST_Controller::HTTP_BAD_REQUEST, FALSE);
+            $this->set_response_simple("Failed to delete trailer", 'Error..!', REST_Controller::HTTP_OK, FALSE);
         }
     }
 

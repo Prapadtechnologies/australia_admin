@@ -219,6 +219,7 @@ class Api extends MY_REST_Controller
             
             $id = $this->db->insert_id();
             $warehouse_default=$this->db->get_where('warehouse',['warehouse_name'=>'Default Warehouse','user_id'=>$token_data->id])->row_array();
+            $trailer_default=$this->db->get_where('trailer',['trailer_name'=>'Default Trailer','user_id'=>$token_data->id])->row_array();
             if($id){
                 if($raw_data['category'] == 'Apparel'){
                     $child=$_POST['child'];
@@ -242,6 +243,22 @@ class Api extends MY_REST_Controller
                                 "merch_child_id"=>$child_id,
                                 "stock_type"=>'warehouse',
                                 "stock_id"=>$warehouse_default['id'],
+                                "quantity"=>0,
+                                "cost"=>$child[$i]['sale_price'],
+                                "created_at"=>date('Y-m-d H:i:s'),
+                                "created_by"=>$token_data->id
+                            ];
+                            $this->db->insert('merch_quantity_log',$raw_data_new);
+                            $qty_id = $this->db->insert_id();
+                            if($qty_id){
+                                $this->db->insert('merch_quantity',$raw_data_new);
+                            }
+
+                            $raw_data_new=[
+                                "merch_id"=>$id,
+                                "merch_child_id"=>$child_id,
+                                "stock_type"=>'trailer',
+                                "stock_id"=>$trailer_default['id'],
                                 "quantity"=>0,
                                 "cost"=>$child[$i]['sale_price'],
                                 "created_at"=>date('Y-m-d H:i:s'),

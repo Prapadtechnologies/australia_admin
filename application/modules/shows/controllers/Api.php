@@ -64,7 +64,7 @@ class Api extends MY_REST_Controller
     public function shows_list_get($tour_id='')
     {
         $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
-        check_completed_shows();
+        //check_completed_shows();
             //$where="lower('name') like '%".strtolower($target)."%'";
         $status=$this->input->get('status');
         /*if($tour_id == ''){
@@ -116,9 +116,9 @@ class Api extends MY_REST_Controller
 
         $data['shows_status']=[
             //['key'=>'total','label'=>'Total Shows','count'=>$total_count],
-            ['key'=>'left','label'=>'Shows Left','count'=>$left_count],
-            ['key'=>'cancelled','label'=>'Cancelled','count'=>$cancelled_count],
-            ['key'=>'completed','label'=>'Completed','count'=>$completed_count]
+            ['key'=>'left','label'=>'Upcoming Shows','count'=>$left_count],
+            ['key'=>'completed','label'=>'Completed Shows','count'=>$completed_count],
+            ['key'=>'cancelled','label'=>'Closed shows','count'=>$cancelled_count],
         ];
         if($res != '' && ($status == 'total' || $status == 'left' || $status == 'cancelled' || $status == 'completed'))
         {

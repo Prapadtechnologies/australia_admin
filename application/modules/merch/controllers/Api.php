@@ -365,7 +365,7 @@ class Api extends MY_REST_Controller
                     $child=$_POST['child'];
                     for($i=0; $i < count($child); $i++){
                         $child_data=[
-                            "merch_id"=>$id,
+                            "merch_id"=>$merch_id,
                             "size_type"=>$child[$i]['size_type'],
                             "size"=>$child[$i]['size'],
                             "sku_code"=>$child[$i]['sku_code'],
@@ -385,7 +385,7 @@ class Api extends MY_REST_Controller
                     }
                 }else{
                     $child_data=[
-                        "merch_id"=>$id,
+                        "merch_id"=>$merch_id,
                         "sku_code"=>$raw_data['sku'],
                         "sale_price"=>$raw_data['sale_price'],
                         "cost"=>$raw_data['cost'],
@@ -404,10 +404,10 @@ class Api extends MY_REST_Controller
                     mkdir('./uploads/merch_image', 0777, true);
                 }
                 if($this->input->post('image1')){
-                    file_put_contents("./uploads/merch_image/merch_1_".$id.".png", base64_decode($this->input->post('image1')));
+                    file_put_contents("./uploads/merch_image/merch_1_".$merch_id.".png", base64_decode($this->input->post('image1')));
                 }
                 if($this->input->post('image2')){
-                    file_put_contents("./uploads/merch_image/merch_2_".$id.".png", base64_decode($this->input->post('image2')));
+                    file_put_contents("./uploads/merch_image/merch_2_".$merch_id.".png", base64_decode($this->input->post('image2')));
                 }
 
             }

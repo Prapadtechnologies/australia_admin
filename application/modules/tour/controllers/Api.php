@@ -61,6 +61,17 @@ class Api extends MY_REST_Controller
         
         if($status == 'upcoming' || $status == 'completed' || $status == 'closed'){
             $list_data=$$status->result_array();
+            foreach ($list_data as &$tour) {
+                $trailers = $this->db->select('trailer.id, trailer.trailer_name')
+                                     ->from('tour_trailers')
+                                     ->join('trailer', 'trailer.id = tour_trailers.trailer_id')
+                                     ->where('tour_trailers.tour_id', $tour['id'])
+                                     ->get()
+                                     ->result_array();
+
+                // Add trailers data to each tour
+                $tour['trailers'] = $trailers;
+            }
         }else{
             $list_data=[];
         }

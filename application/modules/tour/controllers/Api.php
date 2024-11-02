@@ -153,6 +153,33 @@ class Api extends MY_REST_Controller
 
         // Check if the update was successful
         if ($this->db->affected_rows() > 0) {
+            $new_trailer_ids = $_POST['trailers'];
+            $existing_trailers = $this->db->select('trailer_id')
+                                  ->from('tour_trailers')
+                                  ->where(['tour_id'=> $tour_id,"user_id"=>$token_data->id])
+                                  ->get()
+                                  ->result_array();
+            $existing_trailer_ids = array_column($existing_trailers, 'trailer_id');
+            $trailers_to_add = array_diff($new_trailer_ids, $existing_trailer_ids);
+            $trailers_to_delete = array_diff($existing_trailer_ids, $new_trailer_ids);
+            if (!empty($trailers_to_add)) {
+                $data_to_insert = [];
+                foreach ($trailers_to_add as $trailer_id) {
+                    $data_to_insert[] = [
+                        "user_id"=>$token_data->id
+                        'tour_id' => $tour_id,
+                        'trailer_id' => $trailer_id,
+                    ];
+                }
+                $this->db->insert_batch('tour_trailers', $data_to_insert);
+            }
+
+            // Delete records that are no longer present in the new list
+            if (!empty($trailers_to_delete)) {
+                $this->db->where(['tour_id'=> $tour_id,"user_id"=>$token_data->id])
+                         ->where_in('trailer_id', $trailers_to_delete)
+                         ->delete('tour_trailers');
+            }              
             $updated_tour_data = $this->db->get_where('tour', array('id' => $tour_id))->row_array();
             $this->set_response_simple(($existing_tour_data == FALSE) ? [] : $existing_tour_data, 'Success..!', REST_Controller::HTTP_OK, TRUE);
             //$this->response($existing_tour_data, REST_Controller::HTTP_OK);

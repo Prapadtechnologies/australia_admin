@@ -336,7 +336,9 @@ function tourdefaulttrailer($token_data,$tour_id)
     $trailer_default=$CI->db->get_where('trailer',['trailer_name'=>'Default Trailer','user_id'=>$token_data->id]);
     if($trailer_default->num_rows() > 0){
         $trailer_id=$trailer_default->row()->id;
-        $CI->db->where('id',$trailer_id)->update('trailer',['tour_id'=>$tour_id,"updated_at" => date('Y-m-d H:i:s'),"updated_by" => $token_data->id]);
+        $CI->db->where('id',$tour_id)->update('tour_trailers',["user_id" => $token_data->id,'trailer_id'=>$trailer_id,'tour_id'=>$tour_id,"created_at" => date('Y-m-d H:i:s'),"created_by" => $token_data->id,"updated_at" => date('Y-m-d H:i:s'),"updated_by" => $token_data->id]);
+        //$CI->db->where('id',$tour_id)->update('tour',['trailer_id'=>$trailer_id,"updated_at" => date('Y-m-d H:i:s'),"updated_by" => $token_data->id]);
+        //$CI->db->where('id',$trailer_id)->update('trailer',['tour_id'=>$tour_id,"updated_at" => date('Y-m-d H:i:s'),"updated_by" => $token_data->id]);
     }
     return true;
 }

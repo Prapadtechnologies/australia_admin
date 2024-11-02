@@ -43,7 +43,7 @@ class Api extends MY_REST_Controller
         } else {*/
             $raw_data=[
                 "user_id"=>$token_data->id,
-                "tour_id"=>$_POST['tour_id'],
+                //"tour_id"=>$_POST['tour_id'],
                 "trailer_name"=>$_POST['trailer_name'],
                 "contact_person"=>$_POST['contact_person'],
                 "phone_number"=>$_POST['phone_number'],
@@ -71,7 +71,7 @@ class Api extends MY_REST_Controller
 
         $updated_data  = array(
             "user_id"=>$token_data->id,
-            "tour_id" => isset($_POST['tour_id']) ? $_POST['tour_id'] : $existing_trailer_data['tour_id'],
+            //"tour_id" => isset($_POST['tour_id']) ? $_POST['tour_id'] : $existing_trailer_data['tour_id'],
             "trailer_name" => isset($_POST['trailer_name']) ? $_POST['trailer_name'] : $existing_trailer_data['trailer_name'],
             "contact_person" => isset($_POST['contact_person']) ? $_POST['contact_person'] : $existing_trailer_data['contact_person'],
             "phone_number" => isset($_POST['phone_number']) ? $_POST['phone_number'] : $existing_trailer_data['phone_number'],
@@ -85,6 +85,10 @@ class Api extends MY_REST_Controller
 
         // Check if the update was successful
         if ($this->db->affected_rows() > 0) {
+            /*if(count($_POST['tour_id']) > 0){
+                $this->db->where_in('id', $_POST['tour_id']);
+                $this->db->update('tour', ['trailer_id'=>$trailer_id]);
+            }*/
              // Fetch the updated trailer data
             $updated_trailer_data = $this->db->get_where('trailer', array('id' => $trailer_id))->row_array();
             

@@ -584,10 +584,19 @@ class Api extends MY_REST_Controller
         $merch_ids=[];
         $data=[];
         
-        $trailer_ids=$this->db->select('id')->get_where('trailer',['tour_id'=>$tour_id])->row_array();
-        if($trailer_ids != '' && count($trailer_ids) > 0){
-            $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>'trailer','stock_id'=>$trailer_ids['id']])->result_array();
-        }
+        // $trailer_ids=$this->db->select('id')->get_where('trailer',['tour_id'=>$tour_id])->row_array();
+        // if($trailer_ids != '' && count($trailer_ids) > 0){
+        //     $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>'trailer','stock_id'=>$trailer_ids['id']])->result_array();
+        // }
+
+        $trailer_ids=$this->db->select('trailer_id')->get_where('tour_trailers',['tour_id'=>$tour_id])->result_array();
+        $trailer_ids = array_column($trailer_ids, 'trailer_id');
+        $merch_ids = $this->db->select('merch_id')
+                      ->from('merch_quantity')
+                      ->where('stock_type', 'trailer')
+                      ->where_in('stock_id', $trailer_ids)
+                      ->get()
+                      ->result_array();
 
         if($merch_ids != '' && count($merch_ids) > 0){
             $this->db->select('m.*,s.name,c.colour_name');
@@ -639,10 +648,16 @@ class Api extends MY_REST_Controller
             foreach ($child_data as $qty_child) {
                 $qty_sale_cost=$qty_child['sale_price'];
                 $total_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id']];
-                $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer','stock_id'=>$trailer_ids['id']];
+                $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer'];
                 $total_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$total_where)->row_array();
                 //$trailer_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
-                $trailer_onhand=$this->db->select('id as qty_id,cost as qty_sale_cost,quantity as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
+                // $trailer_onhand=$this->db->select('id as qty_id,cost as qty_sale_cost,quantity as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
+                
+                $this->db->select('id as qty_id, cost as qty_sale_cost, quantity as total_quantity');
+                $this->db->from('merch_quantity');
+                $this->db->where($trailer_where);
+                $this->db->where_in('stock_id', $trailer_ids); // where_in for multiple IDs
+                $trailer_onhand = $this->db->get()->row_array();
 
                 //echo $this->db->last_query();die;
                 //print_r($trailer_onhand);die;
@@ -736,11 +751,19 @@ class Api extends MY_REST_Controller
         $merch_ids=[];
         $data=[];
         
-        $trailer_ids=$this->db->select('id')->get_where('trailer',['tour_id'=>$tour_id])->row_array();
+        /*$trailer_ids=$this->db->select('id')->get_where('trailer',['tour_id'=>$tour_id])->row_array();
 
         if($trailer_ids != '' && count($trailer_ids) > 0){
             $merch_ids=$this->db->select('merch_id')->get_where('merch_quantity',['stock_type'=>'trailer','stock_id'=>$trailer_ids['id']])->result_array();
-        }
+        }*/
+        $trailer_ids=$this->db->select('trailer_id')->get_where('tour_trailers',['tour_id'=>$tour_id])->result_array();
+        $trailer_ids = array_column($trailer_ids, 'trailer_id');
+        $merch_ids = $this->db->select('merch_id')
+                      ->from('merch_quantity')
+                      ->where('stock_type', 'trailer')
+                      ->where_in('stock_id', $trailer_ids)
+                      ->get()
+                      ->result_array();
 
         if($merch_ids != '' && count($merch_ids) > 0){
             $this->db->select('m.*,s.name,c.colour_name');
@@ -792,10 +815,16 @@ class Api extends MY_REST_Controller
             foreach ($child_data as $qty_child) {
                 $qty_sale_cost=$qty_child['sale_price'];
                 $total_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id']];
-                $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer','stock_id'=>$trailer_ids['id']];
+                $trailer_where=['merch_id'=>$mer['id'],'merch_child_id'=>$qty_child['id'],'stock_type'=>'trailer'];
 
                 $total_onhand=$this->db->select('SUM(quantity) as total_quantity')->get_where('merch_quantity',$total_where)->row_array();
-                $trailer_onhand=$this->db->select('id as qty_id,cost as qty_sale_cost,quantity as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
+                //$trailer_onhand=$this->db->select('id as qty_id,cost as qty_sale_cost,quantity as total_quantity')->get_where('merch_quantity',$trailer_where)->row_array();
+
+                $this->db->select('id as qty_id, cost as qty_sale_cost, quantity as total_quantity');
+                $this->db->from('merch_quantity');
+                $this->db->where($trailer_where);
+                $this->db->where_in('stock_id', $trailer_ids); // where_in for multiple IDs
+                $trailer_onhand = $this->db->get()->row_array();
 
                 //echo $this->db->last_query();die;
                 //print_r($trailer_onhand);die;

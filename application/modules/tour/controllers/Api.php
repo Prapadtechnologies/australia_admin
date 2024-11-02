@@ -166,9 +166,9 @@ class Api extends MY_REST_Controller
                 $data_to_insert = [];
                 foreach ($trailers_to_add as $trailer_id) {
                     $data_to_insert[] = [
-                        "user_id"=>$token_data->id
+                        "user_id"=>$token_data->id,
                         'tour_id' => $tour_id,
-                        'trailer_id' => $trailer_id,
+                        'trailer_id' => $trailer_id
                     ];
                 }
                 $this->db->insert_batch('tour_trailers', $data_to_insert);

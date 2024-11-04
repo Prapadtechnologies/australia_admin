@@ -745,7 +745,7 @@ class Api extends MY_REST_Controller
     }
     public function merch_counts_total_get()
     {
-        $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
+        // $token_data=$this->validate_token($this->input->get_request_header('X_AUTH_TOKEN'));
         $show_id=$this->input->get('show_id');
         $tour_id=$this->input->get('tour_id');
         $merch_ids=[];
@@ -758,12 +758,14 @@ class Api extends MY_REST_Controller
         }*/
         $trailer_ids=$this->db->select('trailer_id')->get_where('tour_trailers',['tour_id'=>$tour_id])->result_array();
         $trailer_ids = array_column($trailer_ids, 'trailer_id');
-        $merch_ids = $this->db->select('merch_id')
+        if($trailer_ids != '' && count($trailer_ids) > 0){
+            $merch_ids = $this->db->select('merch_id')
                       ->from('merch_quantity')
                       ->where('stock_type', 'trailer')
                       ->where_in('stock_id', $trailer_ids)
                       ->get()
                       ->result_array();
+        }
 
         if($merch_ids != '' && count($merch_ids) > 0){
             $this->db->select('m.*,s.name,c.colour_name');
@@ -823,7 +825,7 @@ class Api extends MY_REST_Controller
                 $this->db->select('id as qty_id, cost as qty_sale_cost, quantity as total_quantity');
                 $this->db->from('merch_quantity');
                 $this->db->where($trailer_where);
-                $this->db->where_in('stock_id', $trailer_ids); // where_in for multiple IDs
+                $this->db->where_in('stock_id', $trailer_ids); 
                 $trailer_onhand = $this->db->get()->row_array();
 
                 //echo $this->db->last_query();die;

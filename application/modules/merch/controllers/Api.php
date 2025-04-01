@@ -591,12 +591,14 @@ class Api extends MY_REST_Controller
 
         $trailer_ids=$this->db->select('trailer_id')->get_where('tour_trailers',['tour_id'=>$tour_id])->result_array();
         $trailer_ids = array_column($trailer_ids, 'trailer_id');
-        $merch_ids = $this->db->select('merch_id')
+        if($trailer_ids != '' && count($trailer_ids) > 0){
+            $merch_ids = $this->db->select('merch_id')
                       ->from('merch_quantity')
                       ->where('stock_type', 'trailer')
                       ->where_in('stock_id', $trailer_ids)
                       ->get()
                       ->result_array();
+        }
 
         if($merch_ids != '' && count($merch_ids) > 0){
             $this->db->select('m.*,s.name,c.colour_name');
@@ -798,7 +800,7 @@ class Api extends MY_REST_Controller
         $m_gross_in_total=$m_gross_value_add_total=$m_gross_in_add_total=$m_comp_value_total=$m_gross_sales_man_stand=0;
         $final_total=0;
         $all_stands['stand1']=['total_units'=>0,'gross_total'=>0];
-        if(count($stand_type_list) > 0){
+        if(isset($stant_type_list) && count($stand_type_list) > 0){
             for ($i=0; $i < count($stand_type_list); $i++) { 
                 $all_stands['stand'.$stand_type_list[$i]['stand_type']]=['total_units'=>0,'gross_total'=>0];
             }

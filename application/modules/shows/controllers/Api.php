@@ -71,13 +71,13 @@ class Api extends MY_REST_Controller
             $res=$this->db->order_by('tour_name','asc')->get('tour')->row();
             $tour_id=$res->id;
         }*/
-        if($tour_id != '' && $tour_id != 'undefined'){
+        if($tour_id != '' && ($tour_id != 'undefined' || $tour_id != 'all')){
             $res=$this->db->order_by('tour_name','asc')->where('id',$tour_id)->get('tour')->row();
         }else{
             $res='';
         }
         //$tour_id=$res->id;
-        if($res != ''){
+        if($res != '' || $tour_id == 'all'){
            /*         $this->db->select('*');
                     $this->db->order_by('start_date','asc');
                     $this->db->where('tour_id',$tour_id);
@@ -85,29 +85,38 @@ class Api extends MY_REST_Controller
             $total_count=$total->num_rows();
             $total_data=$total->result_array();*/
 
-                    $this->db->select('*');
-                    $this->db->order_by('start_date','asc');
-                    $this->db->where('tour_id',$tour_id);
+                    $this->db->select('s.*,t.tour_name');
+                    $this->db->join('tour as t', 't.id = s.tour_id', 'left'); 
+                    $this->db->order_by('s.start_date','asc');
+                    if($tour_id != 'all'){
+                        $this->db->where('s.tour_id',$tour_id);
+                    }
                     //$this->db->where('start_date >=',date('Y-m-d'));
-                    $this->db->where('status','active');
-            $left = $this->db->get('shows');
+                    $this->db->where('s.status','active');
+            $left = $this->db->get('shows as s');
             $left_count=$left->num_rows();
             $left_data=$left->result_array();
 
-                    $this->db->select('*');
-                    $this->db->order_by('start_date','asc');
-                    $this->db->where('tour_id',$tour_id);
-                    $this->db->where('status','inactive');
-            $cancelled = $this->db->get('shows');
+                    $this->db->select('s.*,t.tour_name');
+                    $this->db->join('tour as t', 't.id = s.tour_id', 'left'); 
+                    $this->db->order_by('s.start_date','asc');
+                    if($tour_id != 'all'){
+                        $this->db->where('s.tour_id',$tour_id);
+                    }
+                    $this->db->where('s.status','inactive');
+            $cancelled = $this->db->get('shows as s');
             $cancelled_count=$cancelled->num_rows();
             $cancelled_data=$cancelled->result_array();
 
-                    $this->db->select('*');
-                    $this->db->order_by('start_date','asc');
-                    $this->db->where('tour_id',$tour_id);
+                    $this->db->select('s.*,t.tour_name');
+                    $this->db->join('tour as t', 't.id = s.tour_id', 'left'); 
+                    $this->db->order_by('s.start_date','asc');
+                    if($tour_id != 'all'){
+                        $this->db->where('s.tour_id',$tour_id);
+                    }
                     //$this->db->where('end_date <',date('Y-m-d'));
-                    $this->db->where('status','completed');
-            $completed = $this->db->get('shows');
+                    $this->db->where('s.status','completed');
+            $completed = $this->db->get('shows as s');
             $completed_count=$completed->num_rows();
             $completed_data=$completed->result_array();
         }else{
@@ -120,7 +129,7 @@ class Api extends MY_REST_Controller
             ['key'=>'completed','label'=>'Completed Shows','count'=>$completed_count],
             ['key'=>'cancelled','label'=>'Closed shows','count'=>$cancelled_count],
         ];
-        if($res != '' && ($status == 'total' || $status == 'left' || $status == 'cancelled' || $status == 'completed'))
+        if(($res != '' || $tour_id == 'all') && ($status == 'total' || $status == 'left' || $status == 'cancelled' || $status == 'completed'))
         {
             $list_data=$$status->result_array();
         }else{

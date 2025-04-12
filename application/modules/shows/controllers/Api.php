@@ -92,6 +92,7 @@ class Api extends MY_REST_Controller
                         $this->db->where('s.tour_id',$tour_id);
                     }
                     //$this->db->where('start_date >=',date('Y-m-d'));
+                    $this->db->where('user_id',$token_data->id);
                     $this->db->where('s.status','active');
             $left = $this->db->get('shows as s');
             $left_count=$left->num_rows();
@@ -103,6 +104,7 @@ class Api extends MY_REST_Controller
                     if($tour_id != 'all'){
                         $this->db->where('s.tour_id',$tour_id);
                     }
+                    $this->db->where('user_id',$token_data->id);
                     $this->db->where('s.status','inactive');
             $cancelled = $this->db->get('shows as s');
             $cancelled_count=$cancelled->num_rows();
@@ -115,6 +117,7 @@ class Api extends MY_REST_Controller
                         $this->db->where('s.tour_id',$tour_id);
                     }
                     //$this->db->where('end_date <',date('Y-m-d'));
+                    $this->db->where('user_id',$token_data->id);
                     $this->db->where('s.status','completed');
             $completed = $this->db->get('shows as s');
             $completed_count=$completed->num_rows();
